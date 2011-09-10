@@ -14,5 +14,13 @@
         <activity android:name="SongListActivity"
                   android:label="Pick a song">
         </activity>
+        <activity android:name="SongRecodeActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <category android:name="android.intent.category.OPENABLE"/>
+                <data mimeType="audio/*"/>                
+            </intent-filter>
+        </activity>
     </application>
 </manifest> 

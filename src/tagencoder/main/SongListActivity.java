@@ -8,10 +8,15 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.Media;
 import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.MediaController;
 import android.widget.SimpleCursorAdapter;
 
 /**
@@ -31,6 +36,14 @@ public class SongListActivity extends Activity {
         String[] from = new String[]{Media.TITLE};
         int[] to = new int[]{R.id.tvSongName};
         lv.setAdapter(new SimpleCursorAdapter(this, R.layout.songitem, c, from, to));
+        
+        lv.setOnItemClickListener(new OnItemClickListener() {
+
+            public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+                Cursor c = (Cursor)adapter.getItemAtPosition(position);
+                Object z;
+            }
+        });
     }
 
     
