@@ -5,6 +5,9 @@
 package tagencoder.main;
 
 import android.app.Activity;
+import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,7 +26,7 @@ import android.widget.SimpleCursorAdapter;
  *
  * @author seth
  */
-public class SongListActivity extends Activity {
+public class SongListActivity extends Activity implements OnItemClickListener {
 
     /** Called when the activity is first created. */
     @Override
@@ -36,17 +39,19 @@ public class SongListActivity extends Activity {
         String[] from = new String[]{Media.TITLE};
         int[] to = new int[]{R.id.tvSongName};
         lv.setAdapter(new SimpleCursorAdapter(this, R.layout.songitem, c, from, to));
-        
-        lv.setOnItemClickListener(new OnItemClickListener() {
-
-            public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-                Cursor c = (Cursor)adapter.getItemAtPosition(position);
-                Object z;
-            }
-        });
+        lv.setOnItemClickListener(this);
     }
 
-    
+    public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+        Cursor c = (Cursor)adapter.getItemAtPosition(position);
+        long nSongId = c.getLong(c.getColumnIndex(Media._ID));                
+        Uri uri = Media.EXTERNAL_CONTENT_URI;
+        uri = ContentUris.withAppendedId(uri, nSongId);
+        Intent i = new Intent();
+        i.setData(uri);
+        i.setClass(this, SongRecodeActivity.class);
+        startActivity(i);
+    }
 
     private class CursorParametersGenerator {
 

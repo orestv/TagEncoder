@@ -14,7 +14,8 @@
         <activity android:name="SongListActivity"
                   android:label="Pick a song">
         </activity>
-        <activity android:name="SongRecodeActivity">
+        <activity android:name="SongRecodeActivity"
+                  android:label="Recode song">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
