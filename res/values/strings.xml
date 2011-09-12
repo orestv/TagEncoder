@@ -1,4 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MainActivity</string>
+    <string name="encoding_prompt">Choose an encoding</string>
+    <string-array name="encodings">
+        <item>UTF-8</item>
+        <item>CP1251</item>    
+    </string-array>
 </resources>
