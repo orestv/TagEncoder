@@ -14,6 +14,9 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore.Audio.AudioColumns;
 import android.provider.MediaStore.Audio.Media;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -39,7 +42,7 @@ import java.util.logging.Logger;
  *
  * @author seth
  */
-public class SongRecodeActivity extends Activity {
+public class SongRecodeActivity extends Activity implements OnItemClickListener{
 
     private long nSongId = 0;
 
@@ -53,13 +56,15 @@ public class SongRecodeActivity extends Activity {
         this.nSongId = ContentUris.parseId(uri);
 
         String title = "", album = "", artist = "";
+        HashMap<String, String> hmTags = null;
         FileInputStream fis = null;
         try {
             fis = (FileInputStream) getContentResolver().openInputStream(uri);
-        } catch (FileNotFoundException ex) {
+            hmTags = BicycleTagEncoder.getTags(fis, "CP1251");
+            fis.close();
+        } catch (IOException ex) {
             Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
         }
-        HashMap<String, String> hmTags = BicycleTagEncoder.getTags(fis, "CP1251");
         title = hmTags.get("TIT2");
         album = hmTags.get("TALB");
         artist = hmTags.get("TPE1");
@@ -69,6 +74,8 @@ public class SongRecodeActivity extends Activity {
                 ArrayAdapter.createFromResource(this, R.array.encodings, android.R.layout.simple_spinner_item);
         Spinner spinner = (Spinner) findViewById(R.id.Encoding);
         spinner.setAdapter(encodingAdapter);
+        spinner.setOnItemClickListener(this);
+        
     }
 
     public void fillData(String title, String album, String artist) {
@@ -78,5 +85,10 @@ public class SongRecodeActivity extends Activity {
         etTitle.setText(title);
         etAlbum.setText(album);
         etArtist.setText(artist);
+    }
+
+    public void onItemClick(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
+        String s = (String) arg0.getAdapter().getItem(arg2);
+        System.out.println(s);
     }
 }

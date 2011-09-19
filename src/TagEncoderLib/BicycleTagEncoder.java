@@ -75,7 +75,6 @@ public class BicycleTagEncoder {
             int nHeaderLength = BicycleTagEncoder.getSynchronizedIntegerValue(baHeaderLength);
             byte[] baTags = new byte[nHeaderLength];
             fis.read(baTags);
-            fis.close();
 
             return BicycleTagEncoder.getTags(baTags, sCharsetName);
 
