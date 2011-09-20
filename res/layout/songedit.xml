@@ -15,15 +15,33 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             />
+    <Button
+            android:id="@+id/UpdateTitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_update_title"
+        />
     <EditText
             android:id="@+id/Album"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             />
+    <Button
+            android:id="@+id/UpdateAlbum"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_update_album"
+        />
     <EditText
             android:id="@+id/Artist"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             />
+    <Button
+            android:id="@+id/UpdateArtist"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_update_artist"
+        />
 </LinearLayout>
 

@@ -2,6 +2,9 @@
 <resources>
     <string name="app_name">MainActivity</string>
     <string name="encoding_prompt">Choose an encoding</string>
+    <string name="btn_update_title">Update song title</string>
+    <string name="btn_update_album">Update album name</string>
+    <string name="btn_update_artist">Update artist name</string>
     <string-array name="encodings">
         <item>UTF-16</item>
         <item>UTF-8</item>
