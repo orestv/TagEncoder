@@ -151,6 +151,7 @@ public class BicycleTagEncoder {
         return hmResult;
     }
     
+    //is is moved by 10 bytes
     private static byte[] getHeaderHeaderBytes(InputStream is) throws IOException {
         //Get ID3 header - 10 bytes
         byte[] baHeader = new byte[10];
@@ -158,12 +159,15 @@ public class BicycleTagEncoder {
         return baHeader;
     }
     
+    
+    //nHeaderLength contains FULL header length, including the first 10 bytes of headerheader
     private static byte[] getHeaderBytes(InputStream is, int nHeaderLength) throws IOException {
         byte[] baTags = new byte[nHeaderLength-10];
         is.read(baTags);
         return baTags;        
     }
     
+    //moves input stream to the end of the header
     private static byte[] getHeaderBytes(InputStream is) throws IOException {        
         byte[] baHeader = getHeaderHeaderBytes(is);
         
