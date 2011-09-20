@@ -15,6 +15,7 @@ import android.database.Cursor;
 import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore.Audio.Media;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -27,7 +28,13 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -37,9 +44,11 @@ import java.util.logging.Logger;
  * @author seth
  */
 public class SongRecodeActivity extends Activity implements OnItemSelectedListener {
-    
-    public enum ButtonAction {UPDATE_ARTIST, UPDATE_ALBUM, UPDATE_TITLE};
 
+    public enum ButtonAction {
+
+        UPDATE_ARTIST, UPDATE_ALBUM, UPDATE_TITLE
+    };
     private Uri songUri;
     private Long nSongId = null;
     private Long nAlbumId = null;
@@ -124,16 +133,39 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         String sArtist = etArtist.getText().toString();
         ContentValues values = new ContentValues();
         values.put(Media.ARTIST, sArtist);
-        getContentResolver().update(Media.EXTERNAL_CONTENT_URI, 
-                values, 
-                Media.ARTIST_ID + " = ?", 
-                new String[] {nArtistId.toString()});
+        getContentResolver().update(Media.EXTERNAL_CONTENT_URI,
+                values,
+                Media.ARTIST_ID + " = ?",
+                new String[]{nArtistId.toString()});
     }
 
     private void updateAlbum() {
     }
 
-    private void updateTitle() {
+    private void updateTitle() throws FileNotFoundException, IOException {
+        EditText etTitle = (EditText) findViewById(R.id.Title);
+        String sTitle = etTitle.getText().toString();
+        ContentValues values = new ContentValues();
+        values.put(Media.TITLE, sTitle);
+        getContentResolver().update(Media.EXTERNAL_CONTENT_URI,
+                values,
+                Media._ID + " = ?",
+                new String[]{nSongId.toString()});
+        InputStream is = getContentResolver().openInputStream(songUri);
+        File tmp = File.createTempFile("sdf", "asdf");
+        FileOutputStream fos = new FileOutputStream(tmp);
+        BicycleTagEncoder.updateTagValue(is, fos, BicycleTagEncoder.Tag.TITLE, sTitle);
+        fos.close();
+        is.close();
+        OutputStream os = getContentResolver().openOutputStream(songUri);
+        FileInputStream fis = new FileInputStream(tmp);
+        byte[] buf = new byte[40960];
+        int nReadCount = 0;
+        while ((nReadCount = fis.read(buf)) != -1) {
+            os.write(buf, 0, nReadCount);
+        }
+        os.close();
+        fis.close();
     }
 
     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -146,18 +178,16 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
     }
 
     private class UpdateListener implements OnClickListener {
+
         private ButtonAction action;
-        
+
         public UpdateListener(ButtonAction action) {
             this.action = action;
         }
-        
+
         private void showMessage(String sMessage, DialogInterface.OnClickListener listener) {
             AlertDialog.Builder builder = new AlertDialog.Builder(SongRecodeActivity.this);
-            builder.setMessage(sMessage)
-                    .setCancelable(false)
-                    .setPositiveButton("Yes", listener)
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+            builder.setMessage(sMessage).setCancelable(false).setPositiveButton("Yes", listener).setNegativeButton("No", new DialogInterface.OnClickListener() {
 
                 public void onClick(DialogInterface dialog, int arg1) {
                     dialog.cancel();
@@ -169,7 +199,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         public void onClick(View v) {
 
             String sMessage = "";
-            
+
             switch (this.action) {
                 case UPDATE_ALBUM:
                     sMessage = "Are you sure you want to update the album name?";
@@ -184,16 +214,23 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
             DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
 
                 public void onClick(DialogInterface arg0, int arg1) {
-                    switch (action) {
-                        case UPDATE_ALBUM:
-                            updateAlbum();
-                            break;
-                        case UPDATE_ARTIST:
-                            updateArtist();
-                            break;
-                        case UPDATE_TITLE:
-                            updateTitle();
-                            break;
+                    try {
+                        switch (action) {
+                            case UPDATE_ALBUM:
+                                updateAlbum();
+                                break;
+                            case UPDATE_ARTIST:
+                                updateArtist();
+                                break;
+                            case UPDATE_TITLE:
+                                updateTitle();
+                                break;
+                        }
+                    } catch (IOException ex) {
+                        new AlertDialog.Builder(SongRecodeActivity.this).
+                                setMessage("Failed to update media").
+                                create().
+                                show();
                     }
                 }
             };

@@ -92,7 +92,7 @@ public class BicycleTagEncoder {
         byte[] buf = new byte[4096];
         int nReadCount = 0;
         while ((nReadCount = is.read(buf)) != -1) {
-            os.write(buf);
+            os.write(buf, 0, nReadCount);
         }
     }
     
