@@ -36,6 +36,8 @@ import java.util.logging.Logger;
  * @author seth
  */
 public class SongRecodeActivity extends Activity implements OnItemSelectedListener {
+    
+    public enum ButtonAction {UPDATE_ARTIST, UPDATE_ALBUM, UPDATE_TITLE};
 
     private Uri songUri;
     private Long nSongId = null;
@@ -85,9 +87,9 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         Button btnUpdateArtist = (Button) findViewById(R.id.UpdateArtist);
 
 
-        btnUpdateTitle.setOnClickListener(new UpdateListener());
-        btnUpdateAlbum.setOnClickListener(new UpdateListener());
-        btnUpdateArtist.setOnClickListener(new UpdateListener());
+        btnUpdateTitle.setOnClickListener(new UpdateListener(ButtonAction.UPDATE_TITLE));
+        btnUpdateAlbum.setOnClickListener(new UpdateListener(ButtonAction.UPDATE_ALBUM));
+        btnUpdateArtist.setOnClickListener(new UpdateListener(ButtonAction.UPDATE_ARTIST));
     }
 
     private void setSongData(Uri uri, String sCharset) {
@@ -143,50 +145,58 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
     }
 
     private class UpdateListener implements OnClickListener {
+        private ButtonAction action;
+        
+        public UpdateListener(ButtonAction action) {
+            this.action = action;
+        }
+        
+        private void showMessage(String sMessage, DialogInterface.OnClickListener listener) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(SongRecodeActivity.this);
+            builder.setMessage(sMessage)
+                    .setCancelable(false)
+                    .setPositiveButton("Yes", listener)
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+
+                public void onClick(DialogInterface dialog, int arg1) {
+                    dialog.cancel();
+                }
+            });
+            builder.create().show();
+        }
 
         public void onClick(View v) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(SongRecodeActivity.this);
 
             String sMessage = "";
             
-            final View view = v;
-
-            switch (v.getId()) {
-                case R.id.UpdateAlbum:
+            switch (this.action) {
+                case UPDATE_ALBUM:
                     sMessage = "Are you sure you want to update the album name?";
                     break;
-                case R.id.UpdateArtist:
+                case UPDATE_ARTIST:
                     sMessage = "Are you sure you want to update the artist name?";
                     break;
-                case R.id.UpdateTitle:
+                case UPDATE_TITLE:
                     sMessage = "Are you sure you want to update the song text?";
                     break;
             }
-            builder.setMessage(sMessage).
-                    setCancelable(false).
-                    setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+            DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
 
                 public void onClick(DialogInterface arg0, int arg1) {
-                    switch (view.getId()) {
-                        case R.id.UpdateAlbum:
+                    switch (action) {
+                        case UPDATE_ALBUM:
                             updateAlbum();
                             break;
-                        case R.id.UpdateArtist:
+                        case UPDATE_ARTIST:
                             updateArtist();
                             break;
-                        case R.id.UpdateTitle:
+                        case UPDATE_TITLE:
                             updateTitle();
                             break;
                     }
                 }
-            })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-
-                public void onClick(DialogInterface arg0, int arg1) {
-                    arg0.cancel();
-                }
-            });
-            builder.create().show();
+            };
+            showMessage(sMessage, listener);
         }
     }
 }
