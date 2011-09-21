@@ -89,11 +89,13 @@ public class BicycleTagEncoder {
         bos.write(baHeader, nNextTagIndex, nOldHeaderLength - nNextTagIndex-10);
         bos.writeTo(os);
         
-        byte[] buf = new byte[4096];
+        byte[] buf = new byte[1048576];
         int nReadCount = 0;
         while ((nReadCount = is.read(buf)) != -1) {
             os.write(buf, 0, nReadCount);
         }
+        is.close();
+        os.close();
     }
     
     public static byte[] synchronizeIntegerValue(int value) {

@@ -7,13 +7,16 @@ package tagencoder.main;
 import TagEncoderLib.BicycleTagEncoder;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.MediaScannerConnection;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.provider.MediaStore.Audio.Media;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -132,35 +135,98 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                 values,
                 Media.ARTIST_ID + " = ?",
                 new String[]{nArtistId.toString()});
+        String selection = Media.ARTIST_ID + " = ?";
+        String[] selectionArgs = new String[]{nArtistId.toString()};
+        String[] projection = new String[]{Media._ID, Media.ARTIST_ID};
+
+        Cursor c = getContentResolver().query(Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
+
+        while (c.moveToNext()) {
+            long nID = c.getLong(c.getColumnIndex(Media._ID));
+            Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
+            try {
+                updateTag(uri, BicycleTagEncoder.Tag.ARTIST, sArtist);
+            } catch (IOException ex) {
+                Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+
+        c.close();
     }
 
     private void updateAlbum() {
+        EditText etAlbum = (EditText) findViewById(R.id.Artist);
+        String sAlbum = etAlbum.getText().toString();
+        
+        String selection = Media.ALBUM_ID + " = ?";
+        String[] selectionArgs = new String[]{nAlbumId.toString()};
+        String[] projection = new String[]{Media._ID, Media.ALBUM_ID};
+
+        Cursor c = getContentResolver().query(Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
+
+        while (c.moveToNext()) {
+            long nID = c.getLong(c.getColumnIndex(Media._ID));
+            Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
+            try {
+                updateTag(uri, BicycleTagEncoder.Tag.ALBUM, sAlbum);
+            } catch (IOException ex) {
+                Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
     }
 
     private void updateTitle() throws FileNotFoundException, IOException {
+
+        final ProgressDialog dlg = new ProgressDialog(this);
+        dlg.setMessage("Processing song...");
+        dlg.setCancelable(false);
+        dlg.show();
+
         EditText etTitle = (EditText) findViewById(R.id.Title);
-        String sTitle = etTitle.getText().toString();
+        final String sTitle = etTitle.getText().toString();
+
         ContentValues values = new ContentValues();
         values.put(Media.TITLE, sTitle);
         getContentResolver().update(Media.EXTERNAL_CONTENT_URI,
                 values,
                 Media._ID + " = ?",
                 new String[]{nSongId.toString()});
-        InputStream is = getContentResolver().openInputStream(songUri);
-        File tmp = File.createTempFile("sdf", "asdf");
-        FileOutputStream fos = new FileOutputStream(tmp);
-        BicycleTagEncoder.updateTagValue(is, fos, BicycleTagEncoder.Tag.TITLE, sTitle);
-        fos.close();
-        is.close();
-        OutputStream os = getContentResolver().openOutputStream(songUri);
-        FileInputStream fis = new FileInputStream(tmp);
-        byte[] buf = new byte[40960];
+
+        new Thread(new Runnable() {
+
+            public void run() {
+                try {
+                    updateTag(songUri, BicycleTagEncoder.Tag.TITLE, sTitle);
+                    dlg.cancel();
+
+                } catch (IOException ex) {
+                    Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        }).start();
+    }
+
+    private void copyFile(InputStream is, OutputStream os) throws IOException {
+        byte[] buf = new byte[1048576];
         int nReadCount = 0;
-        while ((nReadCount = fis.read(buf)) != -1) {
+        while ((nReadCount = is.read(buf)) != -1) {
             os.write(buf, 0, nReadCount);
         }
+        is.close();
         os.close();
-        fis.close();
+    }
+
+    private void updateTag(Uri uri, BicycleTagEncoder.Tag tag, String value) throws IOException {
+        InputStream is = getContentResolver().openInputStream(uri);
+        File tmp = File.createTempFile("TagEncoder", "temp");
+        OutputStream os = new FileOutputStream(tmp);
+        BicycleTagEncoder.updateTagValue(is, os, tag, value);
+
+        os = getContentResolver().openOutputStream(uri);
+        is = new FileInputStream(tmp);
+        copyFile(is, os);
+
+        tmp.delete();
     }
 
     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
@@ -222,8 +288,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                                 break;
                         }
                     } catch (IOException ex) {
-                        new AlertDialog.Builder(SongRecodeActivity.this).
-                                setMessage("Failed to update media").
+                        new AlertDialog.Builder(SongRecodeActivity.this).setMessage("Failed to update media").
                                 create().
                                 show();
                     }
