@@ -128,51 +128,89 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
 
     private void updateArtist() {
         EditText etArtist = (EditText) findViewById(R.id.Artist);
-        String sArtist = etArtist.getText().toString();
-        ContentValues values = new ContentValues();
-        values.put(Media.ARTIST, sArtist);
-        getContentResolver().update(Media.EXTERNAL_CONTENT_URI,
-                values,
-                Media.ARTIST_ID + " = ?",
-                new String[]{nArtistId.toString()});
+        final String sArtist = etArtist.getText().toString();
         String selection = Media.ARTIST_ID + " = ?";
         String[] selectionArgs = new String[]{nArtistId.toString()};
         String[] projection = new String[]{Media._ID, Media.ARTIST_ID};
 
         Cursor c = getContentResolver().query(Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
 
-        while (c.moveToNext()) {
-            long nID = c.getLong(c.getColumnIndex(Media._ID));
-            Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
-            try {
-                updateTag(uri, BicycleTagEncoder.Tag.ARTIST, sArtist);
-            } catch (IOException ex) {
-                Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
+        final long[] arrIds = new long[c.getCount()];
+        int nIndex = 0;
 
+        while (c.moveToNext()) {
+            arrIds[nIndex] = c.getLong(c.getColumnIndex(Media._ID));
+            nIndex++;
+        }
         c.close();
+
+        final ProgressDialog dlg = new ProgressDialog(this);
+        dlg.setMessage("Updating songs...");
+        dlg.setCancelable(false);
+        dlg.setMax(arrIds.length);
+        dlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        dlg.show();
+
+        new Thread(new Runnable() {
+
+            public void run() {
+                for (int i = 0; i < arrIds.length; i++) {
+                    long nID = arrIds[i];
+                    Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
+                    try {
+                        updateTag(uri, BicycleTagEncoder.Tag.ARTIST, sArtist);
+                    } catch (IOException ex) {
+                        Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    dlg.incrementProgressBy(1);
+                }
+                dlg.cancel();
+            }
+        }).start();
+
     }
 
     private void updateAlbum() {
-        EditText etAlbum = (EditText) findViewById(R.id.Artist);
-        String sAlbum = etAlbum.getText().toString();
-        
+        EditText etAlbum = (EditText) findViewById(R.id.Album);
+        final String sAlbum = etAlbum.getText().toString();
+
         String selection = Media.ALBUM_ID + " = ?";
         String[] selectionArgs = new String[]{nAlbumId.toString()};
         String[] projection = new String[]{Media._ID, Media.ALBUM_ID};
 
         Cursor c = getContentResolver().query(Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
-
+        
+        final long[] arrIds = new long[c.getCount()];
+        int nIndex = 0;
         while (c.moveToNext()) {
-            long nID = c.getLong(c.getColumnIndex(Media._ID));
-            Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
-            try {
-                updateTag(uri, BicycleTagEncoder.Tag.ALBUM, sAlbum);
-            } catch (IOException ex) {
-                Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            arrIds[nIndex] = c.getLong(c.getColumnIndex(Media._ID));
+            nIndex++;
         }
+        c.close();
+        
+        final ProgressDialog dlg = new ProgressDialog(this);
+        dlg.setMessage("Updating songs...");
+        dlg.setCancelable(false);
+        dlg.setMax(arrIds.length);
+        dlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+        dlg.show();
+
+        new Thread(new Runnable() {
+
+            public void run() {
+                for (int i = 0; i < arrIds.length; i++) {
+                    long nID = arrIds[i];
+                    Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
+                    try {
+                        updateTag(uri, BicycleTagEncoder.Tag.ALBUM, sAlbum);
+                    } catch (IOException ex) {
+                        Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+                    }
+                    dlg.incrementProgressBy(1);
+                }
+                dlg.cancel();
+            }
+        }).start();
     }
 
     private void updateTitle() throws FileNotFoundException, IOException {
@@ -185,13 +223,14 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         EditText etTitle = (EditText) findViewById(R.id.Title);
         final String sTitle = etTitle.getText().toString();
 
+        /*
         ContentValues values = new ContentValues();
         values.put(Media.TITLE, sTitle);
         getContentResolver().update(Media.EXTERNAL_CONTENT_URI,
-                values,
-                Media._ID + " = ?",
-                new String[]{nSongId.toString()});
-
+        values,
+        Media._ID + " = ?",
+        new String[]{nSongId.toString()});
+         */
         new Thread(new Runnable() {
 
             public void run() {
@@ -287,6 +326,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                                 updateTitle();
                                 break;
                         }
+                        sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Media.EXTERNAL_CONTENT_URI)));
                     } catch (IOException ex) {
                         new AlertDialog.Builder(SongRecodeActivity.this).setMessage("Failed to update media").
                                 create().
