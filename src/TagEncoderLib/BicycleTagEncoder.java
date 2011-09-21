@@ -76,7 +76,7 @@ public class BicycleTagEncoder {
         int nNewHeaderLength = baHeader.length + (nNewTagLength - nOldTagLength);
         
         //4 - tag length, 3 - tag flags
-        int nNextTagIndex = nTagStartIndex + 4 + 3 + nOldTagLength;
+        int nNextTagIndex = nTagStartIndex + 4 + 3 + nOldTagLength - 1;
         
         ByteArrayOutputStream bos = new ByteArrayOutputStream(nNewHeaderLength);
         
