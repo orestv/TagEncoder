@@ -5,6 +5,8 @@
 package tagencoder.main;
 
 import TagEncoderLib.BicycleTagEncoder;
+import TagEncoderLib.BicycleTagEncoder.Tag;
+import TagEncoderLib.BicycleTagEncoder.UnknownFormatException;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -102,18 +104,20 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
 
     private void setSongData(Uri uri, String sCharset) {
         String title = "", album = "", artist = "";
-        HashMap<String, String> hmTags = null;
+        HashMap<Tag, String> hmTags = null;
         FileInputStream fis = null;
         try {
             fis = (FileInputStream) getContentResolver().openInputStream(uri);
             hmTags = BicycleTagEncoder.getTags(fis, sCharset);
             fis.close();
+        } catch (UnknownFormatException ex) {
+            Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
             Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
         }
-        title = hmTags.get("TIT2");
-        album = hmTags.get("TALB");
-        artist = hmTags.get("TPE1");
+        title = hmTags.get(Tag.TITLE);
+        album = hmTags.get(Tag.ALBUM);
+        artist = hmTags.get(Tag.ARTIST);
         fillData(title, album, artist);
     }
 
@@ -161,6 +165,8 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                         updateTag(uri, BicycleTagEncoder.Tag.ARTIST, sArtist);
                     } catch (IOException ex) {
                         Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (UnknownFormatException ex) {
+                        Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     dlg.incrementProgressBy(1);
                 }
@@ -179,7 +185,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         String[] projection = new String[]{Media._ID, Media.ALBUM_ID};
 
         Cursor c = getContentResolver().query(Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
-        
+
         final long[] arrIds = new long[c.getCount()];
         int nIndex = 0;
         while (c.moveToNext()) {
@@ -187,7 +193,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
             nIndex++;
         }
         c.close();
-        
+
         final ProgressDialog dlg = new ProgressDialog(this);
         dlg.setMessage("Updating songs...");
         dlg.setCancelable(false);
@@ -204,6 +210,8 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                     try {
                         updateTag(uri, BicycleTagEncoder.Tag.ALBUM, sAlbum);
                     } catch (IOException ex) {
+                        Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+                    } catch (UnknownFormatException ex) {
                         Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
                     }
                     dlg.incrementProgressBy(1);
@@ -238,6 +246,8 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                     updateTag(songUri, BicycleTagEncoder.Tag.TITLE, sTitle);
                     dlg.cancel();
 
+                } catch (UnknownFormatException ex) {
+                    Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (IOException ex) {
                     Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -255,7 +265,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         os.close();
     }
 
-    private void updateTag(Uri uri, BicycleTagEncoder.Tag tag, String value) throws IOException {
+    private void updateTag(Uri uri, BicycleTagEncoder.Tag tag, String value) throws IOException, UnknownFormatException {
         InputStream is = getContentResolver().openInputStream(uri);
         File tmp = File.createTempFile("TagEncoder", "temp");
         OutputStream os = new FileOutputStream(tmp);
