@@ -21,7 +21,7 @@ public class BicycleTagEncoder {
         
     }
 
-    public static int BUFFER_SIZE = 4096;
+    public static int BUFFER_SIZE = 0x100000;
 
     public enum Tag {
         ARTIST,
@@ -39,7 +39,11 @@ public class BicycleTagEncoder {
         byte[] buf = new byte[BUFFER_SIZE];
         int nReadCount = 0;
         while ((nReadCount = is.read(buf)) != -1) {
-            bos.write(buf, 0, nReadCount);
+            try {
+                bos.write(buf, 0, nReadCount);
+            } catch (Exception ex) {
+                System.out.println(ex.toString());
+            }
         }
         return bos.toByteArray();
     }

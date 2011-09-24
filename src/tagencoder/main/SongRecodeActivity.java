@@ -241,20 +241,12 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         
         EditText etTitle = (EditText) findViewById(R.id.Title);
         final String sTitle = etTitle.getText().toString();
-
-        /*
-        ContentValues values = new ContentValues();
-        values.put(Media.TITLE, sTitle);
-        getContentResolver().update(Media.EXTERNAL_CONTENT_URI,
-        values,
-        Media._ID + " = ?",
-        new String[]{nSongId.toString()});
-         */
+        
         new Thread(new Runnable() {
 
             public void run() {
                 try {
-                    updateTag(songUri, BicycleTagEncoder.Tag.TITLE, sTitle);
+                    DataUpdater.updateTitle(nSongId, sTitle, getContentResolver());
                     dlg.cancel();
 
                 } catch (UnknownFormatException ex) {
