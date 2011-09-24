@@ -109,9 +109,9 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
     private void setSongData(Uri uri, String sCharset) {
         String title = "", album = "", artist = "";
         HashMap<Tag, String> hmTags = null;
-        FileInputStream fis = null;
+        InputStream fis = null;
         try {
-            fis = (FileInputStream) getContentResolver().openInputStream(uri);
+            fis = getContentResolver().openInputStream(uri);
             hmTags = BicycleTagEncoder.getTags(fis, sCharset);
             fis.close();
         } catch (UnknownFormatException ex) {
