@@ -12,6 +12,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
@@ -237,7 +238,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         dlg.setMessage("Processing song...");
         dlg.setCancelable(false);
         dlg.show();
-
+        
         EditText etTitle = (EditText) findViewById(R.id.Title);
         final String sTitle = etTitle.getText().toString();
 
