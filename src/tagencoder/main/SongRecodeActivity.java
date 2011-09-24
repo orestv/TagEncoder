@@ -43,6 +43,9 @@ import java.util.logging.Logger;
  *
  * @author seth
  */
+
+//TODO: update actions should also update the database.
+//TODO: move all data update functions away from the file.
 public class SongRecodeActivity extends Activity implements OnItemSelectedListener {
 
     public enum ButtonAction {
@@ -176,16 +179,23 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
 
     }
 
+    /*Updates all songs with current albumID and sets
+     * their album name to the value in the proper textbox
+     * also should update the database entry for the album.
+     */
+    
     private void updateAlbum() {
         EditText etAlbum = (EditText) findViewById(R.id.Album);
         final String sAlbum = etAlbum.getText().toString();
 
+        //Query the database for songs in this album
         String selection = Media.ALBUM_ID + " = ?";
         String[] selectionArgs = new String[]{nAlbumId.toString()};
         String[] projection = new String[]{Media._ID, Media.ALBUM_ID};
 
         Cursor c = getContentResolver().query(Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
 
+        //Get list of song IDs for further processing in a separate thread
         final long[] arrIds = new long[c.getCount()];
         int nIndex = 0;
         while (c.moveToNext()) {
