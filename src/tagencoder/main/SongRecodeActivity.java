@@ -119,9 +119,9 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         } catch (IOException ex) {
             Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
         }
-        title = hmTags.get(Tag.TITLE);
-        album = hmTags.get(Tag.ALBUM);
-        artist = hmTags.get(Tag.ARTIST);
+        title = hmTags.get(Tag.Title);
+        album = hmTags.get(Tag.Album);
+        artist = hmTags.get(Tag.Artist);
         fillData(title, album, artist);
     }
 
@@ -166,7 +166,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                     long nID = arrIds[i];
                     Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
                     try {
-                        updateTag(uri, BicycleTagEncoder.Tag.ARTIST, sArtist);
+                        updateTag(uri, BicycleTagEncoder.Tag.Artist, sArtist);
                     } catch (IOException ex) {
                         Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (UnknownFormatException ex) {
@@ -219,7 +219,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                     long nID = arrIds[i];
                     Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
                     try {
-                        updateTag(uri, BicycleTagEncoder.Tag.ALBUM, sAlbum);
+                        updateTag(uri, BicycleTagEncoder.Tag.Album, sAlbum);
                     } catch (IOException ex) {
                         Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
                     } catch (UnknownFormatException ex) {

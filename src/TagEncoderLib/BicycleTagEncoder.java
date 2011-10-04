@@ -6,6 +6,7 @@ package TagEncoderLib;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -21,12 +22,15 @@ public class BicycleTagEncoder {
         
     }
 
-    public static int BUFFER_SIZE = 0x100000;
+    public static int BUFFER_SIZE = 4096;
 
     public enum Tag {
-        ARTIST,
-        ALBUM,
-        TITLE;
+        Artist,
+        Album,
+        Title,
+        Year,
+        Comment,
+        Genre;
     }
 
     public enum TagVersion {
@@ -35,17 +39,10 @@ public class BicycleTagEncoder {
     }
 
     public static byte[] readFile(InputStream is) throws IOException {
-        ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        byte[] buf = new byte[BUFFER_SIZE];
-        int nReadCount = 0;
-        while ((nReadCount = is.read(buf)) != -1) {
-            try {
-                bos.write(buf, 0, nReadCount);
-            } catch (Exception ex) {
-                System.out.println(ex.toString());
-            }
-        }
-        return bos.toByteArray();
+        int nFileSize = is.available();
+        byte[] buf = new byte[nFileSize];
+        is.read(buf);
+        return buf;
     }
 
     private static TagVersion parseTagVersion(byte[] data) throws IOException {
@@ -62,25 +59,38 @@ public class BicycleTagEncoder {
             return TagVersion.ID3V1;
         return null;
     }
+
+    public static void updateTagValue(InputStream is, OutputStream os, Tag tag, String value) throws IOException, UnknownFormatException {
+        updateTags(is, os, new Tag[]{tag}, new String[]{value});
+    }
     
-    public static AbstractTagEncoder getEncoder(InputStream is) throws IOException, UnknownFormatException {
+    
+    public static void updateTags(InputStream is, OutputStream os, Tag[] tags, String[] values) throws IOException {                
+        byte[] data = readFile(is);
+        data = ID3V2Encoder.updateTags(data, tags, values);
+        os.write(data);         
+    }
+    
+    public static HashMap<Tag, String> getTags(InputStream is, String sCharsetName) throws IOException, UnknownFormatException {
         byte[] data = readFile(is);
         TagVersion version = parseTagVersion(data);
         switch(version) {
             case ID3V1:
-                return new ID3V1Encoder(data);
+                return ID3V1Encoder.getTags(data, sCharsetName);
             case ID3V2:
-                return new ID3V2Encoder(data);
+                return ID3V2Encoder.getTags(data, sCharsetName);
         }
         throw new UnknownFormatException();
     }
-
-    public static void updateTagValue(InputStream is, OutputStream os, Tag tag, String value) throws IOException, UnknownFormatException {
-        AbstractTagEncoder encoder = getEncoder(is);
-        encoder.updateTagValue(os, tag, value);
-    }
-    public static HashMap<Tag, String> getTags(InputStream is, String sCharsetName) throws IOException, UnknownFormatException {
-        AbstractTagEncoder encoder = getEncoder(is);
-        return encoder.getTags(sCharsetName);
+    
+    public static void convertV1ToV2(InputStream is, OutputStream os, String sCharsetName) throws IOException {
+        byte[] data = readFile(is);
+        TagVersion version = parseTagVersion(data);
+        if (version != TagVersion.ID3V1)
+            return;
+        HashMap<Tag, String> tags = ID3V1Encoder.getTags(data, sCharsetName);
+        data = ID3V1Encoder.stripTag(data);
+        data = ID3V2Encoder.appendHeader(data, tags);
+        os.write(data);
     }
 }

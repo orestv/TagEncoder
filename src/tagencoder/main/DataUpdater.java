@@ -31,15 +31,15 @@ public class DataUpdater {
         String sValueColumnName = null;
         String sIDColumnName = null;
         switch(tag) {
-            case TITLE:
+            case Title:
                 sValueColumnName = Media.TITLE;
                 sIDColumnName = Media._ID;
                 break;
-            case ALBUM:
+            case Album:
                 sValueColumnName = Media.ALBUM;
                 sIDColumnName = Media.ALBUM_ID;
                 break;
-            case ARTIST:
+            case Artist:
                 sValueColumnName = Media.ARTIST;
                 sIDColumnName =  Media.ARTIST_ID;
                 break;
@@ -63,25 +63,25 @@ public class DataUpdater {
     }
     
     public static void updateAlbum(long nAlbumId, String sAlbum, ContentResolver resolver) throws IOException, UnknownFormatException {
-        long[] ids = updateDatabase(Tag.ALBUM, nAlbumId, sAlbum, resolver);    
+        long[] ids = updateDatabase(Tag.Album, nAlbumId, sAlbum, resolver);    
         for (int nIndex = 0; nIndex < ids.length; nIndex++) {
-            updateTag(ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, ids[nIndex]), Tag.ALBUM, sAlbum, resolver);
+            updateTag(ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, ids[nIndex]), Tag.Album, sAlbum, resolver);
         }
     }
     
     public static void updateArtist(long nArtistId, String sArtist, ContentResolver resolver) throws IOException, UnknownFormatException {
-        long[] ids = updateDatabase(Tag.ARTIST, nArtistId, sArtist, resolver);
+        long[] ids = updateDatabase(Tag.Artist, nArtistId, sArtist, resolver);
          
         for (int nIndex = 0; nIndex < ids.length; nIndex++) {
-            updateTag(ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, ids[nIndex]), BicycleTagEncoder.Tag.ARTIST, sArtist, resolver);            
+            updateTag(ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, ids[nIndex]), BicycleTagEncoder.Tag.Artist, sArtist, resolver);            
         }
         
     }
     
     public static void updateTitle(long nSongId, String sTitle, ContentResolver resolver) throws IOException, UnknownFormatException {
-        updateDatabase(Tag.TITLE, nSongId, sTitle, resolver);
+        updateDatabase(Tag.Title, nSongId, sTitle, resolver);
         Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nSongId);
-        updateTag(uri, BicycleTagEncoder.Tag.TITLE, sTitle, resolver);
+        updateTag(uri, BicycleTagEncoder.Tag.Title, sTitle, resolver);
     }
     
     public static void updateTag(Uri uri, BicycleTagEncoder.Tag tag, String value, ContentResolver resolver) throws IOException, UnknownFormatException {

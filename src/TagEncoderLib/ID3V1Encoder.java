@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -28,21 +29,56 @@ public class ID3V1Encoder extends AbstractTagEncoder {
         byte[] baTags = getTagBytes();
 
         InputStream is = new ByteArrayInputStream(baTags);
-        byte[] baTag = new byte[30];
-
-        is.read(baTag);
-        String sTagValue = new String(baTag, sCharsetName).trim();
-        tags.put(Tag.TITLE, sTagValue);
-
-        is.read(baTag);
-        sTagValue = new String(baTag, sCharsetName).trim();
-        tags.put(Tag.ARTIST, sTagValue);
-
-        is.read(baTag);
-        sTagValue = new String(baTag, sCharsetName).trim();
-        tags.put(Tag.ALBUM, sTagValue);
+        
+        tags.put(Tag.Title, readTag(is, Tag.Title, sCharsetName));
+        tags.put(Tag.Artist, readTag(is, Tag.Artist, sCharsetName));
+        tags.put(Tag.Album, readTag(is, Tag.Album, sCharsetName));
+        tags.put(Tag.Year, readTag(is, Tag.Year, sCharsetName));
+        tags.put(Tag.Comment, readTag(is, Tag.Comment, sCharsetName));
 
         return tags;
+    }
+    
+    public static HashMap<Tag, String> getTags(byte[] data) throws IOException {
+        return getTags(data, "ISO8859-1");
+    }
+    
+    public static HashMap<Tag, String> getTags(byte[] data, String sCharsetName) throws IOException {
+        HashMap<Tag, String> tags = new HashMap<Tag, String>();
+        byte[] baTags = getTagBytes(data);
+
+        InputStream is = new ByteArrayInputStream(baTags);
+        byte[] baTag = new byte[30];
+        
+
+        tags.put(Tag.Title, readTag(is, Tag.Title, sCharsetName));
+        tags.put(Tag.Artist, readTag(is, Tag.Artist, sCharsetName));
+        tags.put(Tag.Album, readTag(is, Tag.Album, sCharsetName));
+        tags.put(Tag.Year, readTag(is, Tag.Year, sCharsetName));
+        tags.put(Tag.Comment, readTag(is, Tag.Comment, sCharsetName));
+
+        return tags;
+    }
+    
+    private static int getTagLength(Tag tag) {
+        switch(tag) {
+            case Artist:
+            case Album:
+            case Title:
+            case Comment:
+                return 30;
+            case Year:
+                return 4;
+        }
+        return 30;
+    }
+    
+    private static String readTag(InputStream is, Tag tag, String sCharsetName) throws IOException {
+        int nLength = getTagLength(tag);
+        byte[] buf = new byte[nLength];
+        is.read(buf);
+        String sResult = new String(buf, sCharsetName).trim(); 
+        return sResult;
     }
 
     @Override
@@ -66,11 +102,11 @@ public class ID3V1Encoder extends AbstractTagEncoder {
 
     private static int getTagOffset(Tag tag) {
         switch (tag) {
-            case TITLE:
+            case Title:
                 return 0;
-            case ARTIST:
+            case Artist:
                 return 30;
-            case ALBUM:
+            case Album:
                 return 60;
         }
         return 0;
@@ -81,5 +117,17 @@ public class ID3V1Encoder extends AbstractTagEncoder {
         byte[] baTags = new byte[125];
         is.read(baTags);
         return baTags;
+    }
+    
+    private static byte[] getTagBytes(byte[] data) throws IOException {
+        InputStream is = new ByteArrayInputStream(data, data.length - 128 + 3, 128);
+        byte[] baTags = new byte[125];
+        is.read(baTags);
+        return baTags;
+    }
+    
+    public static byte[] stripTag(byte[] data) {
+        byte[] ret = Arrays.copyOf(data, data.length-128);
+        return ret;
     }
 }

@@ -11,7 +11,10 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
 
 /**
  *
@@ -25,25 +28,49 @@ public class ID3V2Encoder extends AbstractTagEncoder {
 
     private static String getCode(Tag tag) {
         switch (tag) {
-            case ARTIST:
+            case Artist:
                 return "TPE1";
-            case ALBUM:
+            case Album:
                 return "TALB";
-            case TITLE:
+            case Title:
                 return "TIT2";
+            case Year:
+                return "TDRC";
+            case Comment:
+                return "COMM";
         }
         return "";
     }
-    
+
+    private static byte[] getTagBytes(String value, Tag tag) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        bos.write(3);
+        switch (tag) {
+            case Artist:
+            case Album:
+            case Title:
+                bos.write(value.getBytes("UTF-8"));
+                break;
+            case Comment:
+                bos.write("eng".getBytes());
+                bos.write(0);
+                bos.write(value.getBytes("UTF-8"));
+                break;
+            case Year:
+                bos.write(value.getBytes("UTF-8"));
+                break;
+        }
+        return bos.toByteArray();
+    }
+
     private static Tag getTagType(String code) {
-        if (code.equals("TPE1"))
-            return Tag.ARTIST;
-        else if (code.equals("TALB"))
-            return Tag.ALBUM;
-        else if (code.equals("TIT2"))
-            return Tag.TITLE;
-        else
-            return null;
+        Tag[] tags = Tag.values();
+        for (int i = 0; i < tags.length; i++) {
+            if (code.equals(getCode(tags[i]))) {
+                return tags[i];
+            }
+        }
+        return null;
     }
 
     @Override
@@ -82,16 +109,15 @@ public class ID3V2Encoder extends AbstractTagEncoder {
         byte[] baOldTagLength = new byte[4];
         bis.read(baOldTagLength);
         int nOldTagLength = desynchronizeIntegerValue(baOldTagLength);
-        byte[] baTagFlags = new byte[3];
+        byte[] baTagFlags = new byte[2];
         bis.read(baTagFlags);
-        baTagFlags[2] = 0x01;  //set encoding to UTF-16
         byte[] baNewTagValue = value.getBytes("UTF-16");
         int nNewTagLength = baNewTagValue.length + 1;
 
         int nNewHeaderLength = baHeader.length + (nNewTagLength - nOldTagLength);
 
         //4 - tag length, 3 - tag flags
-        int nNextTagIndex = nTagStartIndex + 4 + 3 + nOldTagLength - 1;
+        int nNextTagIndex = nTagStartIndex + 4 + 2 + nOldTagLength;
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream(nNewHeaderLength);
 
@@ -100,6 +126,8 @@ public class ID3V2Encoder extends AbstractTagEncoder {
         bos.write(baHeader, 0, nTagStartIndex);
         bos.write(synchronizeIntegerValue(nNewTagLength));
         bos.write(baTagFlags);
+        //UTF-16 mark
+        bos.write(1);
         bos.write(baNewTagValue);
         bos.write(baHeader, nNextTagIndex, nOldHeaderLength - nNextTagIndex - 10);
         bos.writeTo(os);
@@ -111,6 +139,117 @@ public class ID3V2Encoder extends AbstractTagEncoder {
         }
         is.close();
         os.close();
+    }
+
+    public static byte[] updateTags(byte[] data, Tag[] tags, String[] values) throws IOException {
+
+        byte[] baEmpty = new byte[]{0, 0, 0, 0};
+
+        ByteArrayInputStream bis = new ByteArrayInputStream(data);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
+        //ID3, version, flags
+        bos.write(data, 0, 10);
+        
+        byte[] baHeaderSize = new byte[4];        
+        bis.skip(6);
+        bis.read(baHeaderSize);
+        int nHeaderSize = desynchronizeIntegerValue(baHeaderSize);
+
+        byte[] baFrameName = new byte[4];
+
+        bis.read(baFrameName);
+        //headerHeader + first frame name
+        int nPosition = 10 + 4;
+        byte[] baFrameLength = new byte[4];
+        byte[] baFrameFlags = new byte[2];
+
+        while (nPosition < nHeaderSize && !Arrays.equals(baFrameName, baEmpty)) {
+            bos.write(baFrameName);
+            String sTagName = new String(baFrameName);
+            Tag tag = getTagType(sTagName);
+            String sTagValue = null;
+            for (int i = 0; i < tags.length; i++) {
+                if (tags[i] == tag)
+                    sTagValue = values[i];
+            }
+            bis.read(baFrameLength);
+            bis.read(baFrameFlags);
+            //length + flags + encoding
+            nPosition += 4 + 2 + 1;
+            int nFrameLength = desynchronizeIntegerValue(baFrameLength);
+            nPosition += nFrameLength;
+            if (sTagValue != null) {
+                byte[] baFrameValue = getTagBytes(sTagValue, getTagType(sTagName));
+                bis.skip(nFrameLength);
+                nPosition += nFrameLength;
+
+                nFrameLength = baFrameValue.length;
+                bos.write(synchronizeIntegerValue(nFrameLength));
+                bos.write(0);
+                bos.write(0);
+                bos.write(baFrameValue);
+            } else {
+                bos.write(baFrameLength);
+                bos.write(baFrameFlags);
+                byte[] baFrameValue = new byte[nFrameLength];
+                bis.read(baFrameValue);
+                nPosition += nFrameLength;
+                bos.write(baFrameValue);
+            }
+
+            bis.read(baFrameName);
+            nPosition += 4;
+        }
+        
+        byte[] baHeader = bos.toByteArray();
+        baHeaderSize = synchronizeIntegerValue(baHeader.length - 10);
+        
+        bos.write(data, nPosition, data.length-nPosition);
+        byte[] ret = bos.toByteArray();
+        for (int i = 0; i < 4; i++) {
+            ret[i + 6] = baHeaderSize[i];
+        }
+
+        return ret;
+    }
+
+    public static byte[] appendHeader(byte[] data, HashMap<Tag, String> tags) throws UnsupportedEncodingException, IOException {
+        byte[] header = createHeader(tags);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(header.length + data.length);
+        bos.write(header);
+        bos.write(data);
+        return bos.toByteArray();
+    }
+
+    private static byte[] createHeader(HashMap<Tag, String> tags) throws UnsupportedEncodingException, IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+
+        //Tag header - ID3v2.3.0 and flags (none set)
+        byte[] baHeaderHeader = new byte[]{'I', 'D', '3', 4, 0, 0};
+
+        Iterator<Tag> iter = tags.keySet().iterator();
+        while (iter.hasNext()) {
+            Tag tag = iter.next();
+            String value = tags.get(tag);
+            byte[] baValue2 = value.getBytes("UTF-16");
+            byte[] baValue = getTagBytes(value, tag);
+            byte[] baFrameLength = synchronizeIntegerValue(baValue.length);
+
+            //TODO: Find out whether encoding specification is needed here.
+            bos.write(getCode(tag).getBytes());
+            bos.write(baFrameLength);
+            bos.write(new byte[]{0, 0});
+            bos.write(baValue);
+        }
+        int nHeaderSize = bos.size();
+        byte[] baHeaderSize = synchronizeIntegerValue(nHeaderSize);
+        byte[] baHeader = bos.toByteArray();
+        ByteArrayOutputStream bos_result = new ByteArrayOutputStream(nHeaderSize);
+
+        bos_result.write(baHeaderHeader);
+        bos_result.write(baHeaderSize);
+        bos_result.write(baHeader);
+        return bos_result.toByteArray();
     }
 
     public static byte[] synchronizeIntegerValue(int value) {
@@ -138,7 +277,7 @@ public class ID3V2Encoder extends AbstractTagEncoder {
         return nResult;
     }
 
-    private static HashMap<Tag, String> getTags(byte[] baTags, String sCharsetName) throws IOException {
+    public static HashMap<Tag, String> getTags(byte[] baTags, String sCharsetName) throws IOException {
         HashMap<Tag, String> hmResult = new HashMap<Tag, String>();
 
         DataInputStream dis = new DataInputStream(new ByteArrayInputStream(baTags));
