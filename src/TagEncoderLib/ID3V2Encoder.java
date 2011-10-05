@@ -68,22 +68,23 @@ public class ID3V2Encoder {
         return null;
     }
 
-    public static void updateTags(byte[] data, OutputStream os, Tag[] tags, String[] values) throws IOException {
+    public static void updateTags(InputStream is, OutputStream os, Tag[] tags, String[] values) throws IOException {
+
+        is.skip(6);
+        byte[] baFrames = getFrames(is);
 
         byte[] baEmpty = new byte[]{0, 0, 0, 0};
 
-        InputStream bis = new ByteArrayInputStream(data);
-
-        //ByteArrayInputStream bis = new ByteArrayInputStream(data);
-
-        bis.skip(6);
-        byte[] baHeaderSize = new byte[4];
-        bis.read(baHeaderSize);
-        int nHeaderSize = desynchronizeIntegerValue(baHeaderSize);
+        InputStream bis = new ByteArrayInputStream(baFrames);
+        int nHeaderSize = baFrames.length;
 
         ByteArrayOutputStream bos = new ByteArrayOutputStream(nHeaderSize);
+
         //ID3, version, flags
-        bos.write(data, 0, 10);
+        bos.write(new byte[]{'I', 'D', '3', 4});
+
+        //Size yet unknown
+        bos.write(baEmpty);
 
         byte[] baFrameName = new byte[4];
 
@@ -144,11 +145,15 @@ public class ID3V2Encoder {
         //The first byte that's not padding        
 
         byte[] baHeader = bos.toByteArray();
-        baHeaderSize = synchronizeIntegerValue(baHeader.length - 10);
+        byte[] baHeaderSize = synchronizeIntegerValue(baHeader.length);
         System.arraycopy(baHeaderSize, 0, baHeader, 6, 4);
 
         os.write(baHeader);
-        os.write(data, nPosition, data.length - nPosition - 1);
+        
+        int nReadCount = -1;
+        byte[] buf = new byte[65536];
+        while ((nReadCount = is.read(buf)) != -1) 
+            os.write(buf, 0, nReadCount);
     }
 
     public static byte[] appendHeader(byte[] data, HashMap<Tag, String> tags) throws UnsupportedEncodingException, IOException {
@@ -215,7 +220,6 @@ public class ID3V2Encoder {
     }
 
     //stream read point should be at the beginning of the header size section
-    
     public static byte[] getFrames(InputStream is) throws IOException {
         byte[] baHeaderLength = new byte[4];
         is.read(baHeaderLength);
@@ -230,7 +234,7 @@ public class ID3V2Encoder {
 
     public static HashMap<Tag, String> getTags(byte[] frames, String sCharsetName) throws IOException {
         HashMap<Tag, String> hmResult = new HashMap<Tag, String>();
-        
+
         InputStream is = new ByteArrayInputStream(frames);
         while (is.available() > 0) {
             byte[] baTagName = new byte[4];
