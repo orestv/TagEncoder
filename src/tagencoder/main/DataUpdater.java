@@ -167,7 +167,7 @@ public class DataUpdater {
             is = new FileInputStream(f);
             os = context.getContentResolver().openOutputStream(uri);
 
-            byte[] buf = new byte[65536];
+            byte[] buf = new byte[1<<19];
             int nReadCount = -1;
             while ((nReadCount = is.read(buf)) != -1) {
                 os.write(buf, 0, nReadCount);
