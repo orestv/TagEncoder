@@ -98,8 +98,8 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
     }
 
     private void setSongData(final Uri uri, final String sCharset) {
-        final ProgressDialog dlg = new ProgressDialog(this);
-        dlg.setMessage("Loading song...");
+        final ProgressDialog dlg = new ProgressDialog(this);        
+        dlg.setMessage(getResources().getString(R.string.loading_song));
         dlg.setCancelable(false);
         dlg.show();
         new Thread(new Runnable() {
@@ -146,7 +146,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         final String sArtist = etArtist.getText().toString();
 
         final ProgressDialog dlg = new ProgressDialog(this);
-        dlg.setMessage("Updating songs...");
+        dlg.setMessage(getResources().getString(R.string.updating_song));
         dlg.setCancelable(false);
         dlg.show();
 
@@ -175,7 +175,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         final String sAlbum = etAlbum.getText().toString();
 
         final ProgressDialog dlg = new ProgressDialog(this);
-        dlg.setMessage("Updating song...");
+        dlg.setMessage(getResources().getString(R.string.updating_song));
         dlg.setCancelable(false);
         dlg.show();
 
@@ -197,7 +197,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
     private void updateTitle() throws FileNotFoundException, IOException {
 
         final ProgressDialog dlg = new ProgressDialog(this);
-        dlg.setMessage("Processing song...");
+        dlg.setMessage(getResources().getString(R.string.updating_song));
         dlg.setCancelable(false);
         dlg.show();
 
@@ -260,7 +260,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                     sMessage = "Are you sure you want to update the artist name?";
                     break;
                 case UPDATE_TITLE:
-                    sMessage = "Are you sure you want to update the song text?";
+                    sMessage = "Are you sure you want to update the song title?";
                     break;
             }
             DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {

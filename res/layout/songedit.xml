@@ -4,34 +4,73 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-        <Spinner
+    <Spinner
             android:id="@+id/Encoding"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:prompt="@string/encoding_prompt"
             />
-    <EditText
+    <RelativeLayout android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">            
+        <TextView
+            android:id="@+id/LabelTitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/lbl_update_title"/>
+        <EditText
             android:id="@+id/Title"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/LabelTitle"
             />
-    <Button
+        <Button
             android:id="@+id/UpdateTitle"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_update_title"
+            android:layout_below="@id/Title"
+            android:layout_alignParentRight="true"
         />
-    <EditText
+    </RelativeLayout>
+    <RelativeLayout android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content">            
+        <TextView
+            android:id="@+id/LabelAlbum"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/lbl_update_album"/>
+        <EditText
             android:id="@+id/Album"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/LabelAlbum"
             />
-    <Button
+        <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/Album"                
+                >
+            <CheckBox
+            android:id="@+id/UpdateWholeAlbum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/btn_update_album_everywhere"
+            android:layout_gravity="left"
+            android:layout_weight="4"
+            />
+            <Button
             android:id="@+id/UpdateAlbum"
-            android:layout_width="fill_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/btn_update_album"
+            android:layout_gravity="right"
+            android:layout_weight="2"
         />
+        </LinearLayout>
+    </RelativeLayout>
     <EditText
             android:id="@+id/Artist"
             android:layout_width="fill_parent"
