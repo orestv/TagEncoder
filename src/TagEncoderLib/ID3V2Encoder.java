@@ -81,7 +81,7 @@ public class ID3V2Encoder {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(nHeaderSize);
 
         //ID3, version, flags
-        bos.write(new byte[]{'I', 'D', '3', 4});
+        bos.write(new byte[]{'I', 'D', '3', 4, 0, 0});
 
         //Size yet unknown
         bos.write(baEmpty);
