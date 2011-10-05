@@ -15,7 +15,6 @@ import android.media.MediaScannerConnection;
 import android.media.MediaScannerConnection.MediaScannerConnectionClient;
 import android.net.Uri;
 import android.provider.MediaStore.Audio.Media;
-import android.util.Log;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -91,7 +90,7 @@ public class DataUpdater {
         return paths;
     }
 
-    private static long[] getIDs(Tag tag, long nID, String sValue, ContentResolver resolver) {
+    private static long[] getIDs(Tag tag, long nID, ContentResolver resolver) {
         String sIDColumnName = null;
         switch (tag) {
             case Title:
@@ -121,20 +120,21 @@ public class DataUpdater {
 
     public static void updateAlbum(long nAlbumId, String sAlbum, Context context) throws IOException, UnknownFormatException {
         ContentResolver resolver = context.getContentResolver();
-        long[] ids = getIDs(Tag.Album, nAlbumId, sAlbum, resolver);
+        long[] ids = getIDs(Tag.Album, nAlbumId, resolver);
         for (int nIndex = 0; nIndex < ids.length; nIndex++) {
             updateTag(ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, ids[nIndex]), Tag.Album, sAlbum, resolver);
         }
+        updateDatabase(ids, context);
     }
 
     public static void updateArtist(long nArtistId, String sArtist, Context context) throws IOException, UnknownFormatException {
         ContentResolver resolver = context.getContentResolver();
-        long[] ids = getIDs(Tag.Artist, nArtistId, sArtist, resolver);
+        long[] ids = getIDs(Tag.Artist, nArtistId, resolver);
 
         for (int nIndex = 0; nIndex < ids.length; nIndex++) {
             updateTag(ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, ids[nIndex]), BicycleTagEncoder.Tag.Artist, sArtist, resolver);
         }
-
+        updateDatabase(ids, context);
     }
 
     public static void updateTitle(long nSongId, String sTitle, Context context) throws IOException, UnknownFormatException {
