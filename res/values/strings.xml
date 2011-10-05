@@ -6,8 +6,8 @@
     <string name="btn_update_album">Update album name</string>
     <string name="btn_update_artist">Update artist name</string>
     <string-array name="encodings">
-        <item>UTF-16</item>
         <item>UTF-8</item>
+        <item>UTF-16</item>
         <item>CP1251</item>    
         <item>ISO8859-1</item>
     </string-array>
