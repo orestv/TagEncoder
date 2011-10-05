@@ -15,6 +15,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.logging.StreamHandler;
 
 /**
  *
@@ -71,17 +72,17 @@ public class ID3V2Encoder {
     }
 
     
-    public static byte[] updateTags(byte[] data, Tag[] tags, String[] values) throws IOException {
+    public static byte[] updateTags(InputStream bis, Tag[] tags, String[] values) throws IOException {
 
         byte[] baEmpty = new byte[]{0, 0, 0, 0};
 
-        ByteArrayInputStream bis = new ByteArrayInputStream(data);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(data.length);
+        //ByteArrayInputStream bis = new ByteArrayInputStream(data);
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(bis.available());
         //ID3, version, flags
-        bos.write(data, 0, 10);
+        for (int i = 0; i < 6; i++) 
+            bos.write(bis.read()); 
         
-        byte[] baHeaderSize = new byte[4];        
-        bis.skip(6);
+        byte[] baHeaderSize = new byte[4];
         bis.read(baHeaderSize);
         int nHeaderSize = desynchronizeIntegerValue(baHeaderSize);
 
@@ -92,13 +93,15 @@ public class ID3V2Encoder {
         int nPosition = 10 + 4;
         byte[] baFrameLength = new byte[4];
         byte[] baFrameFlags = new byte[2];
+        
+        bos.write(baEmpty);
 
         while (nPosition < nHeaderSize && !Arrays.equals(baFrameName, baEmpty)) {
             bos.write(baFrameName);
             String sTagName = new String(baFrameName);
             Tag tag = getTagType(sTagName);
             String sTagValue = null;
-            for (int i = 0; i < tags.length; i++) {
+            for (int i = 0; tag != null && i < tags.length; i++) {
                 if (tags[i] == tag)
                     sTagValue = values[i];
             }
@@ -133,10 +136,21 @@ public class ID3V2Encoder {
             nPosition += 4;
         }
         
-        byte[] baHeader = bos.toByteArray();
-        baHeaderSize = synchronizeIntegerValue(baHeader.length - 10);
+        int nReadValue = 0;
+        //Move through padding
+        while (nReadValue == 0)
+            nReadValue = bis.read();
+        //The first byte that's not padding
+        bos.write(nReadValue);
         
-        bos.write(data, nPosition, data.length-nPosition-1);
+        byte[] baHeader = bos.toByteArray();
+        baHeaderSize = synchronizeIntegerValue(baHeader.length - 11);        
+        
+        byte[] buf = new byte[8192];
+        int nReadCount = 0;
+        while ((nReadCount = bis.read(buf)) != -1)
+            bos.write(buf, 0, nReadCount);
+        //bos.write(data, nPosition, data.length-nPosition-1);
         byte[] ret = bos.toByteArray();
         for (int i = 0; i < 4; i++) {
             ret[i + 6] = baHeaderSize[i];
