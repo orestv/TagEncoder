@@ -138,7 +138,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
 
             public void run() {
                 try {
-                    DataUpdater.updateTag(songUri, Tag.Artist, sArtist, SongRecodeActivity.this.getContentResolver());
+                    DataUpdater.updateTag(songUri, Tag.Artist, sArtist, SongRecodeActivity.this);
                 } catch (IOException ex) {
                     Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (UnknownFormatException ex) {
@@ -167,7 +167,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
 
             public void run() {                
                 try {
-                    DataUpdater.updateTag(songUri, Tag.Album, sAlbum, SongRecodeActivity.this.getContentResolver());
+                    DataUpdater.updateTag(songUri, Tag.Album, sAlbum, SongRecodeActivity.this);
                 } catch (IOException ex) {
                     Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (UnknownFormatException ex) {

@@ -58,13 +58,14 @@ public class BicycleTagEncoder {
         return null;
     }
 
-    public static byte[] updateTagValue(InputStream is, Tag tag, String value) throws IOException, UnknownFormatException {
-        return updateTags(is, new Tag[]{tag}, new String[]{value});
+    public static void updateTagValue(InputStream is, OutputStream os, Tag tag, String value) throws IOException, UnknownFormatException {
+        updateTags(is, os, new Tag[]{tag}, new String[]{value});
     }
     
     
-    public static byte[] updateTags(InputStream is, Tag[] tags, String[] values) throws IOException {
-        return ID3V2Encoder.updateTags(is, tags, values);
+    public static void updateTags(InputStream is, OutputStream os, Tag[] tags, String[] values) throws IOException {
+        byte[] data = readFile(is);
+        ID3V2Encoder.updateTags(data, os, tags, values);
     }
     
     public static HashMap<Tag, String> getTags(InputStream is, String sCharsetName) throws IOException, UnknownFormatException {

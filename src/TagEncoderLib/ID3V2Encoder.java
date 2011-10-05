@@ -9,6 +9,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -69,19 +70,22 @@ public class ID3V2Encoder {
     }
 
     
-    public static byte[] updateTags(InputStream bis, Tag[] tags, String[] values) throws IOException {
+    public static void updateTags(byte[] data, OutputStream os, Tag[] tags, String[] values) throws IOException {
 
         byte[] baEmpty = new byte[]{0, 0, 0, 0};
+        
+        InputStream bis = new ByteArrayInputStream(data);
 
         //ByteArrayInputStream bis = new ByteArrayInputStream(data);
-        ByteArrayOutputStream bos = new ByteArrayOutputStream(bis.available());
-        //ID3, version, flags
-        for (int i = 0; i < 6; i++) 
-            bos.write(bis.read()); 
         
+        bis.skip(6);
         byte[] baHeaderSize = new byte[4];
         bis.read(baHeaderSize);
         int nHeaderSize = desynchronizeIntegerValue(baHeaderSize);
+        
+        ByteArrayOutputStream bos = new ByteArrayOutputStream(nHeaderSize);
+        //ID3, version, flags
+        bos.write(data, 0, 10);
 
         byte[] baFrameName = new byte[4];
 
@@ -90,8 +94,6 @@ public class ID3V2Encoder {
         int nPosition = 10 + 4;
         byte[] baFrameLength = new byte[4];
         byte[] baFrameFlags = new byte[2];
-        
-        bos.write(baEmpty);
 
         while (nPosition < nHeaderSize && !Arrays.equals(baFrameName, baEmpty)) {
             bos.write(baFrameName);
@@ -136,25 +138,18 @@ public class ID3V2Encoder {
         
         int nReadValue = 0;
         //Move through padding
-        while (nReadValue == 0)
+        do {
             nReadValue = bis.read();
-        //The first byte that's not padding
-        bos.write(nReadValue);
+            nPosition++;
+        } while (nReadValue == 0);
+        //The first byte that's not padding        
         
         byte[] baHeader = bos.toByteArray();
-        baHeaderSize = synchronizeIntegerValue(baHeader.length - 11);        
+        baHeaderSize = synchronizeIntegerValue(baHeader.length - 10);
+        System.arraycopy(baHeaderSize, 0, baHeader, 6, 4);
         
-        byte[] buf = new byte[1024];
-        int nReadCount = 0;
-        while ((nReadCount = bis.read(buf)) != -1)
-            bos.write(buf, 0, nReadCount);
-        //bos.write(data, nPosition, data.length-nPosition-1);
-        byte[] ret = bos.toByteArray();
-        for (int i = 0; i < 4; i++) {
-            ret[i + 6] = baHeaderSize[i];
-        }
-
-        return ret;
+        os.write(baHeader);
+        os.write(data, nPosition, data.length-nPosition-1);
     }
 
     public static byte[] appendHeader(byte[] data, HashMap<Tag, String> tags) throws UnsupportedEncodingException, IOException {
