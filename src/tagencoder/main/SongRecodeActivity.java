@@ -162,6 +162,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         new Thread(new Runnable() {
 
             public void run() {
+                /*
                 for (int i = 0; i < arrIds.length; i++) {
                     long nID = arrIds[i];
                     Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
@@ -175,6 +176,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                     dlg.incrementProgressBy(1);
                 }
                 dlg.cancel();
+                 */
             }
         }).start();
 
@@ -215,6 +217,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         new Thread(new Runnable() {
 
             public void run() {
+                /*
                 for (int i = 0; i < arrIds.length; i++) {
                     long nID = arrIds[i];
                     Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
@@ -227,6 +230,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                     }
                     dlg.incrementProgressBy(1);
                 }
+                 */
                 dlg.cancel();
             }
         }).start();
@@ -246,7 +250,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
 
             public void run() {
                 try {
-                    DataUpdater.updateTitle(nSongId, sTitle, getContentResolver());
+                    DataUpdater.updateTitle(nSongId, sTitle, SongRecodeActivity.this);
                     dlg.cancel();
 
                 } catch (UnknownFormatException ex) {
@@ -256,29 +260,6 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                 }
             }
         }).start();
-    }
-
-    private void copyFile(InputStream is, OutputStream os) throws IOException {
-        byte[] buf = new byte[1048576];
-        int nReadCount = 0;
-        while ((nReadCount = is.read(buf)) != -1) {
-            os.write(buf, 0, nReadCount);
-        }
-        is.close();
-        os.close();
-    }
-
-    private void updateTag(Uri uri, BicycleTagEncoder.Tag tag, String value) throws IOException, UnknownFormatException {
-        InputStream is = getContentResolver().openInputStream(uri);
-        File tmp = File.createTempFile("TagEncoder", "temp");
-        OutputStream os = new FileOutputStream(tmp);
-        BicycleTagEncoder.updateTagValue(is, os, tag, value);
-
-        os = getContentResolver().openOutputStream(uri);
-        is = new FileInputStream(tmp);
-        copyFile(is, os);
-
-        tmp.delete();
     }
 
     public void onItemSelected(AdapterView<?> arg0, View arg1, int arg2, long arg3) {
