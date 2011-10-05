@@ -144,7 +144,7 @@ public class ID3V2Encoder {
         byte[] baHeader = bos.toByteArray();
         baHeaderSize = synchronizeIntegerValue(baHeader.length - 11);        
         
-        byte[] buf = new byte[8192];
+        byte[] buf = new byte[1024];
         int nReadCount = 0;
         while ((nReadCount = bis.read(buf)) != -1)
             bos.write(buf, 0, nReadCount);

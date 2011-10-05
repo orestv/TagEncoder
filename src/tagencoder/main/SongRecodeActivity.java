@@ -36,7 +36,6 @@ import java.util.logging.Logger;
  *
  * @author seth
  */
-
 //TODO: update actions should also update the database.
 //TODO: move all data update functions away from the file.
 public class SongRecodeActivity extends Activity implements OnItemSelectedListener {
@@ -129,46 +128,23 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
     private void updateArtist() {
         EditText etArtist = (EditText) findViewById(R.id.Artist);
         final String sArtist = etArtist.getText().toString();
-        String selection = Media.ARTIST_ID + " = ?";
-        String[] selectionArgs = new String[]{nArtistId.toString()};
-        String[] projection = new String[]{Media._ID, Media.ARTIST_ID};
-
-        Cursor c = getContentResolver().query(Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
-
-        final long[] arrIds = new long[c.getCount()];
-        int nIndex = 0;
-
-        while (c.moveToNext()) {
-            arrIds[nIndex] = c.getLong(c.getColumnIndex(Media._ID));
-            nIndex++;
-        }
-        c.close();
 
         final ProgressDialog dlg = new ProgressDialog(this);
         dlg.setMessage("Updating songs...");
         dlg.setCancelable(false);
-        dlg.setMax(arrIds.length);
-        dlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         dlg.show();
 
         new Thread(new Runnable() {
 
             public void run() {
-                /*
-                for (int i = 0; i < arrIds.length; i++) {
-                    long nID = arrIds[i];
-                    Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
-                    try {
-                        updateTag(uri, BicycleTagEncoder.Tag.Artist, sArtist);
-                    } catch (IOException ex) {
-                        Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (UnknownFormatException ex) {
-                        Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    dlg.incrementProgressBy(1);
+                try {
+                    DataUpdater.updateTag(songUri, Tag.Artist, sArtist, SongRecodeActivity.this.getContentResolver());
+                } catch (IOException ex) {
+                    Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (UnknownFormatException ex) {
+                    Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
                 }
                 dlg.cancel();
-                 */
             }
         }).start();
 
@@ -178,51 +154,25 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
      * their album name to the value in the proper textbox
      * also should update the database entry for the album.
      */
-    
     private void updateAlbum() {
         EditText etAlbum = (EditText) findViewById(R.id.Album);
         final String sAlbum = etAlbum.getText().toString();
 
-        //Query the database for songs in this album
-        String selection = Media.ALBUM_ID + " = ?";
-        String[] selectionArgs = new String[]{nAlbumId.toString()};
-        String[] projection = new String[]{Media._ID, Media.ALBUM_ID};
-
-        Cursor c = getContentResolver().query(Media.EXTERNAL_CONTENT_URI, projection, selection, selectionArgs, null);
-
-        //Get list of song IDs for further processing in a separate thread
-        final long[] arrIds = new long[c.getCount()];
-        int nIndex = 0;
-        while (c.moveToNext()) {
-            arrIds[nIndex] = c.getLong(c.getColumnIndex(Media._ID));
-            nIndex++;
-        }
-        c.close();
-
         final ProgressDialog dlg = new ProgressDialog(this);
-        dlg.setMessage("Updating songs...");
+        dlg.setMessage("Updating song...");
         dlg.setCancelable(false);
-        dlg.setMax(arrIds.length);
-        dlg.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
         dlg.show();
 
         new Thread(new Runnable() {
 
-            public void run() {
-                /*
-                for (int i = 0; i < arrIds.length; i++) {
-                    long nID = arrIds[i];
-                    Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nID);
-                    try {
-                        updateTag(uri, BicycleTagEncoder.Tag.Album, sAlbum);
-                    } catch (IOException ex) {
-                        Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
-                    } catch (UnknownFormatException ex) {
-                        Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
-                    }
-                    dlg.incrementProgressBy(1);
+            public void run() {                
+                try {
+                    DataUpdater.updateTag(songUri, Tag.Album, sAlbum, SongRecodeActivity.this.getContentResolver());
+                } catch (IOException ex) {
+                    Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (UnknownFormatException ex) {
+                    Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
                 }
-                 */
                 dlg.cancel();
             }
         }).start();
@@ -234,10 +184,10 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         dlg.setMessage("Processing song...");
         dlg.setCancelable(false);
         dlg.show();
-        
+
         EditText etTitle = (EditText) findViewById(R.id.Title);
         final String sTitle = etTitle.getText().toString();
-        
+
         new Thread(new Runnable() {
 
             public void run() {

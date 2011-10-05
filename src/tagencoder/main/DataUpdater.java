@@ -90,7 +90,7 @@ public class DataUpdater {
         return paths;
     }
 
-    private static long[] getIDs(Tag tag, long nID, ContentResolver resolver) {
+    public static long[] getIDs(Tag tag, long nID, ContentResolver resolver) {
         String sIDColumnName = null;
         switch (tag) {
             case Title:
