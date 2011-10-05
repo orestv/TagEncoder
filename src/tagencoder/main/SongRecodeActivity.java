@@ -97,23 +97,39 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
         btnUpdateArtist.setOnClickListener(new UpdateListener(ButtonAction.UPDATE_ARTIST));
     }
 
-    private void setSongData(Uri uri, String sCharset) {
-        String title = "", album = "", artist = "";
-        HashMap<Tag, String> hmTags = null;
-        InputStream fis = null;
-        try {
-            fis = getContentResolver().openInputStream(uri);
-            hmTags = BicycleTagEncoder.getTags(fis, sCharset);
-            fis.close();
-        } catch (UnknownFormatException ex) {
-            Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (IOException ex) {
-            Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        title = hmTags.get(Tag.Title);
-        album = hmTags.get(Tag.Album);
-        artist = hmTags.get(Tag.Artist);
-        fillData(title, album, artist);
+    private void setSongData(final Uri uri, final String sCharset) {
+        final ProgressDialog dlg = new ProgressDialog(this);
+        dlg.setMessage("Loading song...");
+        dlg.setCancelable(false);
+        dlg.show();
+        new Thread(new Runnable() {
+
+            public void run() {
+                HashMap<Tag, String> hmTags = null;
+                InputStream fis = null;
+                try {
+                    fis = getContentResolver().openInputStream(uri);
+                    hmTags = BicycleTagEncoder.getTags(fis, sCharset);
+                    fis.close();
+                } catch (UnknownFormatException ex) {
+                    Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (IOException ex) {
+                    Logger.getLogger(SongRecodeActivity.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                final String title = hmTags.get(Tag.Title);
+                final String album = hmTags.get(Tag.Album);
+                final String artist = hmTags.get(Tag.Artist);
+                dlg.cancel();
+
+
+                runOnUiThread(new Runnable() {
+
+                    public void run() {
+                        fillData(title, album, artist);
+                    }
+                });
+            }
+        }).start();
     }
 
     private void fillData(String title, String album, String artist) {
@@ -165,7 +181,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
 
         new Thread(new Runnable() {
 
-            public void run() {                
+            public void run() {
                 try {
                     DataUpdater.updateTag(songUri, Tag.Album, sAlbum, SongRecodeActivity.this);
                 } catch (IOException ex) {
@@ -262,9 +278,13 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
                                 updateTitle();
                                 break;
                         }
-                        sendBroadcast(new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Media.EXTERNAL_CONTENT_URI)));
-                    } catch (IOException ex) {
-                        new AlertDialog.Builder(SongRecodeActivity.this).setMessage("Failed to update media").
+
+                    } catch (Exception ex) {
+                        new AlertDialog.Builder(SongRecodeActivity.this).setMessage("Failed to update media: " + ex.getLocalizedMessage()).
+                                create().
+                                show();
+                    } catch (Error er) {
+                        new AlertDialog.Builder(SongRecodeActivity.this).setMessage("Failed to update media: " + er.getLocalizedMessage()).
                                 create().
                                 show();
                     }

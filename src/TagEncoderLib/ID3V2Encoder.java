@@ -21,7 +21,6 @@ import java.util.Iterator;
  */
 public class ID3V2Encoder {
 
-
     private static String getCode(Tag tag) {
         switch (tag) {
             case Artist:
@@ -69,20 +68,19 @@ public class ID3V2Encoder {
         return null;
     }
 
-    
     public static void updateTags(byte[] data, OutputStream os, Tag[] tags, String[] values) throws IOException {
 
         byte[] baEmpty = new byte[]{0, 0, 0, 0};
-        
+
         InputStream bis = new ByteArrayInputStream(data);
 
         //ByteArrayInputStream bis = new ByteArrayInputStream(data);
-        
+
         bis.skip(6);
         byte[] baHeaderSize = new byte[4];
         bis.read(baHeaderSize);
         int nHeaderSize = desynchronizeIntegerValue(baHeaderSize);
-        
+
         ByteArrayOutputStream bos = new ByteArrayOutputStream(nHeaderSize);
         //ID3, version, flags
         bos.write(data, 0, 10);
@@ -101,8 +99,9 @@ public class ID3V2Encoder {
             Tag tag = getTagType(sTagName);
             String sTagValue = null;
             for (int i = 0; tag != null && i < tags.length; i++) {
-                if (tags[i] == tag)
+                if (tags[i] == tag) {
                     sTagValue = values[i];
+                }
             }
             bis.read(baFrameLength);
             bis.read(baFrameFlags);
@@ -123,11 +122,11 @@ public class ID3V2Encoder {
             } else {
                 bos.write(baFrameLength);
                 bos.write(baFrameFlags);
-                
+
                 //Read/write the frame value
                 for (int i = 0; i < nFrameLength; i++) {
                     bos.write(bis.read());
-                }                
+                }
                 nPosition += nFrameLength;
             }
 
@@ -135,7 +134,7 @@ public class ID3V2Encoder {
             nPosition += 4;
         }
         bos.write(baFrameName);
-        
+
         int nReadValue = 0;
         //Move through padding
         do {
@@ -143,13 +142,13 @@ public class ID3V2Encoder {
             nPosition++;
         } while (nReadValue == 0);
         //The first byte that's not padding        
-        
+
         byte[] baHeader = bos.toByteArray();
         baHeaderSize = synchronizeIntegerValue(baHeader.length - 10);
         System.arraycopy(baHeaderSize, 0, baHeader, 6, 4);
-        
+
         os.write(baHeader);
-        os.write(data, nPosition, data.length-nPosition-1);
+        os.write(data, nPosition, data.length - nPosition - 1);
     }
 
     public static byte[] appendHeader(byte[] data, HashMap<Tag, String> tags) throws UnsupportedEncodingException, IOException {
@@ -215,15 +214,24 @@ public class ID3V2Encoder {
         return nResult;
     }
 
-    public static HashMap<Tag, String> getTags(byte[] data, String sCharsetName) throws IOException {
-        HashMap<Tag, String> hmResult = new HashMap<Tag, String>();
-        
-        InputStream isTagsLength = new ByteArrayInputStream(data, 6, 4);
+    //stream read point should be at the beginning of the header size section
+    
+    public static byte[] getFrames(InputStream is) throws IOException {
         byte[] baHeaderLength = new byte[4];
-        isTagsLength.read(baHeaderLength);
+        is.read(baHeaderLength);
+
         int nHeaderLength = desynchronizeIntegerValue(baHeaderLength);
 
-        InputStream is = new ByteArrayInputStream(data, 10, nHeaderLength);
+        byte[] baHeader = new byte[nHeaderLength];
+
+        is.read(baHeader);
+        return baHeader;
+    }
+
+    public static HashMap<Tag, String> getTags(byte[] frames, String sCharsetName) throws IOException {
+        HashMap<Tag, String> hmResult = new HashMap<Tag, String>();
+        
+        InputStream is = new ByteArrayInputStream(frames);
         while (is.available() > 0) {
             byte[] baTagName = new byte[4];
             byte[] baTagLength = new byte[4];
