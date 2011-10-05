@@ -7,15 +7,12 @@ package TagEncoderLib;
 import TagEncoderLib.BicycleTagEncoder.Tag;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.logging.StreamHandler;
 
 /**
  *
