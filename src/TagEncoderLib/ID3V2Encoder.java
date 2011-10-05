@@ -135,6 +135,7 @@ public class ID3V2Encoder {
             bis.read(baFrameName);
             nPosition += 4;
         }
+        bos.write(baFrameName);
         
         int nReadValue = 0;
         //Move through padding
