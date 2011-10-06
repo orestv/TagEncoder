@@ -176,7 +176,8 @@ public class DataUpdater {
             throw ex;
         } finally {
             is.close();
-            os.close();            
+            os.close();   
+            f.delete();
         }
         
         updateDatabase(new long[]{ContentUris.parseId(uri)}, context);
