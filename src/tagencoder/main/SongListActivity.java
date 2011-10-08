@@ -31,17 +31,22 @@ public class SongListActivity extends Activity implements OnItemClickListener {
 
         Cursor c = getCursor();
         ListView lv = (ListView) findViewById(R.id.lvSongs);
-        String[] from = new String[]{Media.TITLE};
-        int[] to = new int[]{R.id.tvSongName};
-        lv.setAdapter(new SimpleCursorAdapter(this, R.layout.songitem, c, from, to));
+        
+        
+        //String[] from = new String[]{Media.TITLE};
+        //int[] to = new int[]{R.id.tvSongName};
+        //lv.setAdapter(new SimpleCursorAdapter(this, R.layout.songitem, c, from, to));
+        
+        SongListAdapter adapter = new SongListAdapter(this);
+        lv.setAdapter(adapter);
+        
         lv.setOnItemClickListener(this);
     }
 
     public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-        Cursor c = (Cursor)adapter.getItemAtPosition(position);
-        long nSongId = c.getLong(c.getColumnIndex(Media._ID));                
+        SongData data = (SongData)adapter.getItemAtPosition(position);
         Uri uri = Media.EXTERNAL_CONTENT_URI;
-        uri = ContentUris.withAppendedId(uri, nSongId);
+        uri = ContentUris.withAppendedId(uri, data.getId());
         Intent i = new Intent();
         i.setData(uri);
         i.setClass(this, SongRecodeActivity.class);
