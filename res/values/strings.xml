@@ -16,6 +16,8 @@
     <string name="loading_song">Loading song...</string>
     <string name="updating_song">Updating...</string>
     
+    <string name="version_label">Tag version:</string>
+    
     <string-array name="encodings">
         <item>UTF-8</item>
         <item>UTF-16</item>
