@@ -16,11 +16,8 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -31,10 +28,12 @@ public class SongListView extends RelativeLayout {
     private Context context = null;
     private TextView tvTitle = null;
     private TextView tvVersion = null;
+    private TextView tvArtist = null;
+    private TextView tvAlbum = null;
     private ProgressBar pbVersion = null;
     private View view = null;
 
-    public SongListView(final Context context, final long nId, String sTitle) {
+    public SongListView(final Context context, final SongData song) {
         super(context);
         this.context = context;
 
@@ -44,19 +43,20 @@ public class SongListView extends RelativeLayout {
 
         tvTitle = (TextView) view.findViewById(R.id.tvTitle);
         tvVersion = (TextView) view.findViewById(R.id.tvVersion);
+        tvAlbum = (TextView) view.findViewById(R.id.tvAlbum);
+        tvArtist = (TextView) view.findViewById(R.id.tvArtist);
         pbVersion = (ProgressBar) view.findViewById(R.id.pbVersion);
-
-        setTitle(sTitle);
 
         final Handler handler = new Handler();
 
+        setSong(song);
 
         new Thread(new Runnable() {
 
             public void run() {
                 {
 
-                    Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, nId);
+                    Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, song.getId());
                     String sRet = null;
                     InputStream is = null;
                     try {
@@ -88,10 +88,13 @@ public class SongListView extends RelativeLayout {
             }
         }).start();
     }
-
-    public void setTitle(String sTitle) {
-        tvTitle.setText(sTitle);
+    
+    public void setSong(SongData data) {
+        tvTitle.setText(data.getTitle());
+        tvAlbum.setText(data.getAlbum());
+        tvArtist.setText(data.getArtist());
     }
+
 
     public View getView() {
         return view;

@@ -28,14 +28,15 @@ public class SongListAdapter extends BaseAdapter {
     }
 
     private void initSongList(Context context) {
-        String[] projection = new String[]{Media._ID, Media.TITLE, Media.DATA};
+        String[] projection = new String[]{Media._ID, Media.TITLE, Media.ARTIST, Media.ALBUM};
         Cursor c = context.getContentResolver().query(Media.EXTERNAL_CONTENT_URI, projection, null, null, null);
         lsSongs = new ArrayList<SongData>(c.getCount());
         while (c.moveToNext()) {
-            String sTitle = c.getString(c.getColumnIndex(Media.TITLE));
-            String sPath = c.getString(c.getColumnIndex(Media.DATA));
             long nId = c.getLong(c.getColumnIndex(Media._ID));
-            lsSongs.add(new SongData(nId, sTitle, sPath));
+            String sTitle = c.getString(c.getColumnIndex(Media.TITLE));
+            String sArtist = c.getString(c.getColumnIndex(Media.ARTIST));
+            String sAlbum = c.getString(c.getColumnIndex(Media.ALBUM));
+            lsSongs.add(new SongData(nId, sTitle, sArtist, sAlbum));
         }
         c.close();
     }
@@ -57,11 +58,10 @@ public class SongListAdapter extends BaseAdapter {
         SongListView sv;
         
         if (true || arg1 == null) {
-            sv = new SongListView(context, song.getId(), song.getTitle());
+            sv = new SongListView(context, song);
         } else {
             sv = (SongListView) arg1;
-
-            sv.setTitle(song.getTitle());
+            sv.setSong(song);
         }
 
         return sv.getView();

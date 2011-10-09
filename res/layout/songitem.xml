@@ -10,17 +10,31 @@
         android:id="@+id/tvTitle"
         />
     <TextView  
-        android:id="@+id/tvVersionLabel"
+        android:id="@+id/tvAlbum"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:layout_below="@id/tvTitle"        
+        android:layout_alignParentLeft="true"
+        />
+    <TextView  
+        android:id="@+id/tvArtist"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
         android:layout_below="@id/tvTitle"
+        android:layout_alignParentRight="true"
+        />
+    <TextView  
+        android:id="@+id/tvVersionLabel"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:layout_below="@id/tvArtist"
         android:layout_alignParentLeft="true"
         android:text="@string/version_label"
         />
     <ProgressBar
         android:id="@+id/pbVersion"
         android:layout_alignParentRight="true"
-        android:layout_below="@id/tvTitle"
+        android:layout_below="@id/tvArtist"
         android:layout_toRightOf="@id/tvVersionLabel"
         style="@android:style/Widget.ProgressBar.Small"
         android:layout_width="wrap_content" 
@@ -28,11 +42,10 @@
         />
     <TextView  
         android:id="@+id/tvVersion"
-        android:layout_below="@id/tvTitle"
+        android:layout_below="@id/tvArtist"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
         android:layout_alignParentRight="true"
-        android:layout_toRightOf="@id/tvVersionLabel"
         android:visibility="gone"
         />
 </RelativeLayout>

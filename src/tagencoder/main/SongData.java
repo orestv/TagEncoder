@@ -10,25 +10,32 @@ package tagencoder.main;
  */
 public class SongData {
     private long nId;
-    private String sTitle;
-    private String sPath;
-    
-    public SongData(long nId, String sTitle, String sPath) {
+    private String title;
+    private String artist;
+    private String album;
+
+    public SongData(long nId, String title, String artist, String album) {
         this.nId = nId;
-        this.sTitle = sTitle;
-        this.sPath = sPath;
+        this.title = title;
+        this.artist = artist;
+        this.album = album;
     }
     
+    
+    public String getAlbum() {
+        return album;
+    }
+
+    public String getArtist() {
+        return artist;
+    }    
+    
     public String getTitle() {
-        return sTitle;
+        return title;
     }
     
     public long getId(){
         return nId;
-    }
-    
-    public String getPath(){
-        return sPath;
     }
     
 }

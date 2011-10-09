@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MainActivity</string>
+    <string name="app_name">TagEncoder</string>
     <string name="encoding_prompt">Choose an encoding</string>
     <string name="btn_update_title">Update title</string>
     <string name="btn_update_album">Update album</string>
