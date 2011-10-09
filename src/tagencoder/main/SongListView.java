@@ -28,8 +28,6 @@ public class SongListView extends RelativeLayout {
     private Context context = null;
     private TextView tvTitle = null;
     private TextView tvVersion = null;
-    private TextView tvArtist = null;
-    private TextView tvAlbum = null;
     private ProgressBar pbVersion = null;
     private View view = null;
 
@@ -43,8 +41,6 @@ public class SongListView extends RelativeLayout {
 
         tvTitle = (TextView) view.findViewById(R.id.tvTitle);
         tvVersion = (TextView) view.findViewById(R.id.tvVersion);
-        tvAlbum = (TextView) view.findViewById(R.id.tvAlbum);
-        tvArtist = (TextView) view.findViewById(R.id.tvArtist);
         pbVersion = (ProgressBar) view.findViewById(R.id.pbVersion);
 
         final Handler handler = new Handler();
@@ -65,10 +61,10 @@ public class SongListView extends RelativeLayout {
                         is.close();
                         switch(data.version) {
                             case ID3V1:
-                                sRet = "V1";
+                                sRet = "ID3V1";
                                 break;
                             case ID3V2:
-                                sRet = "V2";
+                                sRet = "ID3V2";
                                 break;
                         }
                     } catch (IOException ex) {
@@ -76,7 +72,7 @@ public class SongListView extends RelativeLayout {
                     } finally {
                         final String ret = sRet;
                         handler.post(new Runnable() {
-                            public void run() {
+                            public void run() {                                
                                 tvVersion.setText(ret);
                                 tvVersion.setVisibility(VISIBLE);
                                 pbVersion.setVisibility(GONE);
@@ -91,8 +87,6 @@ public class SongListView extends RelativeLayout {
     
     public void setSong(SongData data) {
         tvTitle.setText(data.getTitle());
-        tvAlbum.setText(data.getAlbum());
-        tvArtist.setText(data.getArtist());
     }
 
 

@@ -5,17 +5,21 @@
 package tagencoder.main;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore.Audio.Media;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -30,21 +34,33 @@ public class SongListActivity extends Activity implements OnItemClickListener {
         setContentView(R.layout.songlist);
 
         Cursor c = getCursor();
-        ListView lv = (ListView) findViewById(R.id.lvSongs);
-        
-        
-        //String[] from = new String[]{Media.TITLE};
-        //int[] to = new int[]{R.id.tvSongName};
-        //lv.setAdapter(new SimpleCursorAdapter(this, R.layout.songitem, c, from, to));
-        
-        SongListAdapter adapter = new SongListAdapter(this);
-        lv.setAdapter(adapter);
-        
+        final ListView lv = (ListView) findViewById(R.id.lvSongs);
+
+        final Handler handler = new Handler();
+        final ProgressDialog dlg = new ProgressDialog(this);
+        dlg.setCancelable(false);
+        dlg.show();
+
+        new Thread(new Runnable() {
+
+            public void run() {
+                final SongListAdapter adapter = new SongListAdapter(SongListActivity.this);
+                handler.post(new Runnable() {
+
+                    public void run() {
+                        lv.setAdapter(adapter);
+                        dlg.cancel();
+                    }
+                });
+
+            }
+        }).start();
+
         lv.setOnItemClickListener(this);
     }
 
     public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
-        SongData data = (SongData)adapter.getItemAtPosition(position);
+        SongData data = (SongData) adapter.getItemAtPosition(position);
         Uri uri = Media.EXTERNAL_CONTENT_URI;
         uri = ContentUris.withAppendedId(uri, data.getId());
         Intent i = new Intent();
