@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import java.util.ArrayList;
+import tagencoder.main.SongListView.SongListItem;
 
 /**
  *
@@ -57,11 +58,12 @@ public class SongListAdapter extends BaseAdapter {
         SongData song = lsSongs.get(arg0);
         SongListView sv;
         
-        if (true || arg1 == null) {
+        if (arg1 == null) {
             sv = new SongListView(context, song);
         } else {
-            sv = (SongListView) arg1;
-            sv.setSong(song);
+            SongListItem si = (SongListItem)arg1;
+            si.setSong(song);
+            sv = si.getSongListView();
         }
 
         return sv.getView();

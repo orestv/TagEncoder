@@ -11,6 +11,7 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
 import android.provider.MediaStore.Audio.Media;
+import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -23,21 +24,44 @@ import java.io.InputStream;
  *
  * @author seth
  */
-public class SongListView extends RelativeLayout {
+public class SongListView {
 
-    private Context context = null;
     private TextView tvTitle = null;
     private TextView tvVersion = null;
     private ProgressBar pbVersion = null;
-    private View view = null;
+    private SongListItem view = null;
+    
+    public static class SongListItem extends RelativeLayout {
+        private SongListView slv = null;
+        
+        public SongListItem(Context context, SongListView slv) {
+            super(context);
+            this.slv = slv;
+        }
+        
+        public SongListItem(Context context, AttributeSet set) {
+            super(context, set);
+        }
+        
+        public void setListView(SongListView slv) {
+            this.slv = slv;
+        }
+        
+        public void setSong(SongData song) {
+            slv.setSong(song);
+        }
+        
+        public SongListView getSongListView(){
+            return slv;
+        }
+    }
 
     public SongListView(final Context context, final SongData song) {
-        super(context);
-        this.context = context;
 
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        view = inflater.inflate(R.layout.songitem, null, false);
+        view = (SongListItem) inflater.inflate(R.layout.songitem, null, false);
+        view.setListView(this);
 
         tvTitle = (TextView) view.findViewById(R.id.tvTitle);
         tvVersion = (TextView) view.findViewById(R.id.tvVersion);
@@ -74,8 +98,8 @@ public class SongListView extends RelativeLayout {
                         handler.post(new Runnable() {
                             public void run() {                                
                                 tvVersion.setText(ret);
-                                tvVersion.setVisibility(VISIBLE);
-                                pbVersion.setVisibility(GONE);
+                                tvVersion.setVisibility(View.VISIBLE);
+                                pbVersion.setVisibility(View.GONE);
                                 view.invalidate();
                             }
                         });
