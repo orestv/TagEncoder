@@ -32,6 +32,7 @@ public final class SongListItemCreator {
     private SongData song = null;
     private Context context = null;
     private static int nThreadCount = 0;
+    private static int nMaxThreadCount = 3;
 
     public SongListItemCreator(final Context context, SongData song) {
         this.context = context;
@@ -55,7 +56,16 @@ public final class SongListItemCreator {
 
             public void run() {
                 {
-
+                    synchronized (context) {
+                        if (nThreadCount > nMaxThreadCount) {
+                            try {
+                                context.wait();
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(SongListItemCreator.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
+                        nThreadCount++;
+                    }
                     Uri uri = ContentUris.withAppendedId(Media.EXTERNAL_CONTENT_URI, song.getId());
                     String sRet = null;
                     InputStream is = null;
@@ -74,6 +84,10 @@ public final class SongListItemCreator {
                                 sRet = "Unknown";
                                 view.setEnabled(false);
                                 break;
+                        }
+                        synchronized(context) {
+                            nThreadCount--;
+                            context.notify();
                         }
                     } catch (IOException ex) {
                         sRet = "Failed";
