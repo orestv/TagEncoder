@@ -36,7 +36,8 @@ public class BicycleTagEncoder {
 
     public enum TagVersion {
         ID3V1,
-        ID3V2
+        ID3V2,
+        Unknown
     }
     
     public static class TagData {
@@ -73,7 +74,7 @@ public class BicycleTagEncoder {
         is.read(baHeader);
         if (new String(baHeader).substring(0, 3).equals("TAG"))
             return new TagData(TagVersion.ID3V1, baHeader);
-        return null;
+        return new TagData(TagVersion.Unknown, null);
     }
 
     public static void updateTagValue(InputStream is, OutputStream os, Tag tag, String value) throws IOException, UnknownFormatException {

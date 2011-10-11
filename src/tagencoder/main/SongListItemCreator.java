@@ -19,6 +19,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -29,6 +31,7 @@ public final class SongListItemCreator {
     private SongItemView view = null;
     private SongData song = null;
     private Context context = null;
+    private static int nThreadCount = 0;
 
     public SongListItemCreator(final Context context, SongData song) {
         this.context = context;
@@ -58,24 +61,24 @@ public final class SongListItemCreator {
                     InputStream is = null;
                     try {
                         is = context.getContentResolver().openInputStream(uri);
-                        if (is != null) {
-                            TagData data = BicycleTagEncoder.parseTagVersion(is);
-                            is.close();
-                            switch (data.version) {
-                                case ID3V1:
-                                    sRet = "ID3V1";
-                                    break;
-                                case ID3V2:
-                                    sRet = "ID3V2";
-                                    break;
-                            }
-                        } else {
-                            sRet = "Failed to open file";
+                        TagData data = BicycleTagEncoder.parseTagVersion(is);
+                        is.close();
+                        switch (data.version) {
+                            case ID3V1:
+                                sRet = "ID3V1";
+                                break;
+                            case ID3V2:
+                                sRet = "ID3V2";
+                                break;
+                            case Unknown:
+                                sRet = "Unknown";
+                                view.setEnabled(false);
+                                break;
                         }
                     } catch (IOException ex) {
                         sRet = "Failed";
                     } catch (NullPointerException ex) {
-                        sRet = "NULL";
+                        sRet = "NULL" + ex.getStackTrace()[0].toString();
                     } finally {
                         final String ret = sRet;
                         handler.post(new Runnable() {

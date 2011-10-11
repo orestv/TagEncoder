@@ -41,6 +41,8 @@ public class SongListActivity extends Activity implements OnItemClickListener {
     }
 
     public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
+        if (!view.isEnabled())
+            return;
         SongData data = (SongData) adapter.getItemAtPosition(position);
         Uri uri = Media.EXTERNAL_CONTENT_URI;
         uri = ContentUris.withAppendedId(uri, data.getId());

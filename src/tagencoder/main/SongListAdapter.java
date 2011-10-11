@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import tagencoder.main.SongListItemCreator.SongItemView;
 
 /**
@@ -22,6 +23,7 @@ public class SongListAdapter extends BaseAdapter {
 
     private ArrayList<SongData> lsSongs = null;
     private Context context = null;
+    HashMap<Integer, View> mpViews = new HashMap<Integer, View>();
 
     public SongListAdapter(Context context) {
         this.context = context;
@@ -57,14 +59,16 @@ public class SongListAdapter extends BaseAdapter {
     public View getView(int arg0, View arg1, ViewGroup arg2) {
         SongData song = lsSongs.get(arg0);
         SongListItemCreator sv;
+        SongItemView si;
         View v = null;
         
-        if (arg1 == null) {
+        if (!mpViews.containsKey(arg0)) {
             sv = new SongListItemCreator(context, song);
             v = sv.getView();
+            mpViews.put(arg0, v);
         } else {
-            SongItemView si = (SongItemView)arg1;
-            si.setSong(song);
+            si = (SongItemView) mpViews.get(arg0);
+            //si.setSong(song);
             v = si.getView();
         }
         
