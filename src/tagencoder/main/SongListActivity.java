@@ -33,28 +33,9 @@ public class SongListActivity extends Activity implements OnItemClickListener {
         super.onCreate(icicle);
         setContentView(R.layout.songlist);
 
-        Cursor c = getCursor();
-        final ListView lv = (ListView) findViewById(R.id.lvSongs);
+        ListView lv = (ListView) findViewById(R.id.lvSongs);
 
-        final Handler handler = new Handler();
-        final ProgressDialog dlg = new ProgressDialog(this);
-        dlg.setCancelable(false);
-        dlg.show();
-
-        new Thread(new Runnable() {
-
-            public void run() {
-                final SongListAdapter adapter = new SongListAdapter(SongListActivity.this);
-                handler.post(new Runnable() {
-
-                    public void run() {
-                        lv.setAdapter(adapter);
-                        dlg.cancel();
-                    }
-                });
-
-            }
-        }).start();
+        lv.setAdapter(new SongListAdapter(SongListActivity.this));
 
         lv.setOnItemClickListener(this);
     }
@@ -67,30 +48,5 @@ public class SongListActivity extends Activity implements OnItemClickListener {
         i.setData(uri);
         i.setClass(this, SongRecodeActivity.class);
         startActivity(i);
-    }
-
-    private class CursorParametersGenerator {
-
-        private int _nArtistid = -1;
-        private int _nAlbumId = -1;
-
-        public void setArtistId(int nArtistId) {
-            this._nArtistid = nArtistId;
-        }
-
-        public void setAlbumId(int nAlbumId) {
-            this._nAlbumId = nAlbumId;
-        }
-    }
-
-    private Cursor getCursor() {
-        Uri uri = Media.EXTERNAL_CONTENT_URI;
-        String[] projection = new String[]{Media._ID, Media.TITLE};
-        //projection = null;
-
-        Cursor c = managedQuery(uri, projection, null, null, null);
-        startManagingCursor(c);
-        c.moveToFirst();
-        return c;
     }
 }
