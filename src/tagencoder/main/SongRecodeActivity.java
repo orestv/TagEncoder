@@ -83,7 +83,7 @@ public class SongRecodeActivity extends Activity implements OnItemSelectedListen
     private void initUI() {
         ArrayAdapter<CharSequence> encodingAdapter =
                 ArrayAdapter.createFromResource(this, R.array.encodings, android.R.layout.simple_spinner_item);
-        Spinner spinner = (Spinner) findViewById(R.id.Encoding);
+        Spinner spinner = (Spinner) findViewById(R.id.spEncoding);
         spinner.setAdapter(encodingAdapter);
         spinner.setOnItemSelectedListener(this);
 

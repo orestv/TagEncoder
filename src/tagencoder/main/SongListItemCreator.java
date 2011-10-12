@@ -14,6 +14,9 @@ import android.provider.MediaStore.Audio.Media;
 import android.util.AttributeSet;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.Checkable;
+import android.widget.CheckedTextView;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -47,6 +50,7 @@ public final class SongListItemCreator {
         view.tvTitle = (TextView) view.findViewById(R.id.tvTitle);
         view.tvVersion = (TextView) view.findViewById(R.id.tvVersion);
         view.pbVersion = (ProgressBar) view.findViewById(R.id.pbVersion);
+        view.chkSelected = (CheckBox) view.findViewById(R.id.chkSongItem);
 
         final Handler handler = new Handler();
 
@@ -85,7 +89,7 @@ public final class SongListItemCreator {
                                 view.setEnabled(false);
                                 break;
                         }
-                        synchronized(context) {
+                        synchronized (context) {
                             nThreadCount--;
                             context.notify();
                         }
@@ -116,12 +120,13 @@ public final class SongListItemCreator {
         return view;
     }
 
-    public static class SongItemView extends RelativeLayout {
+    public static class SongItemView extends RelativeLayout implements Checkable {
 
         private SongListItemCreator slv = null;
         private TextView tvTitle = null;
         private TextView tvVersion = null;
         private ProgressBar pbVersion = null;
+        private CheckBox chkSelected = null;
 
         public SongItemView(Context context, SongListItemCreator slv) {
             super(context);
@@ -146,6 +151,18 @@ public final class SongListItemCreator {
 
         public SongItemView getView() {
             return this;
+        }
+
+        public void setChecked(boolean arg0) {
+            chkSelected.setChecked(arg0);
+        }
+
+        public boolean isChecked() {
+            return chkSelected.isChecked();
+        }
+
+        public void toggle() {
+            chkSelected.toggle();
         }
     }
 }

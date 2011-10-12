@@ -5,16 +5,22 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-    <TextView  
-        android:id="@+id/tvTitle"
+    <CheckBox
+        android:id="@+id/chkSongItem"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
         android:layout_alignParentLeft="true"
         />
+    <TextView  
+        android:id="@+id/tvTitle"
+        android:layout_width="wrap_content" 
+        android:layout_height="wrap_content" 
+        android:layout_toRightOf="@id/chkSongItem"
+        />
     <ProgressBar
         android:id="@+id/pbVersion"
-        android:layout_alignParentLeft="true"
         android:layout_below="@id/tvTitle"
+        android:layout_toRightOf="@id/chkSongItem"
         style="@android:style/Widget.ProgressBar.Small"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
@@ -22,9 +28,9 @@
     <TextView  
         android:id="@+id/tvVersion"
         android:layout_below="@id/tvTitle"
+        android:layout_toRightOf="@id/chkSongItem"
         android:layout_width="wrap_content" 
         android:layout_height="wrap_content" 
-        android:layout_alignParentLeft="true"
         android:visibility="gone"
         />
 </view>

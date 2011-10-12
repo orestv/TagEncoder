@@ -5,7 +5,7 @@
     android:layout_height="fill_parent"
     >
     <Spinner
-            android:id="@+id/Encoding"
+            android:id="@+id/spEncoding"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:prompt="@string/encoding_prompt"

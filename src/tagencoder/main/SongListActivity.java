@@ -5,21 +5,15 @@
 package tagencoder.main;
 
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.ContentUris;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.MediaStore.Audio.Media;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
