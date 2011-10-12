@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">TagEncoder</string>
+    <string name="main_menu_label">Re-encode your tags!</string>
+    
     <string name="encoding_prompt">Choose an encoding</string>
     <string name="btn_update_title">Update title</string>
     <string name="btn_update_album">Update album</string>
     <string name="btn_update_artist">Update artist</string>
+    
+    <string name="btn_artist_list">View artists</string>
+    <string name="btn_album_list">View albums</string>
+    <string name="btn_song_list">View songs</string>
     
     <string name="btn_update_album_everywhere">Update every song from the album</string>
     <string name="btn_update_artist_everywhere">Update every song by this artist</string>

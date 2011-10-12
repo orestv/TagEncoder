@@ -91,8 +91,6 @@ public final class SongListItemCreator {
                         }
                     } catch (IOException ex) {
                         sRet = "Failed";
-                    } catch (NullPointerException ex) {
-                        sRet = "NULL" + ex.getStackTrace()[0].toString();
                     } finally {
                         final String ret = sRet;
                         handler.post(new Runnable() {
