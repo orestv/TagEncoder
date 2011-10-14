@@ -8,6 +8,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.provider.MediaStore.Audio.Media;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -57,21 +58,18 @@ public class SongListAdapter extends BaseAdapter {
     }
 
     public View getView(int arg0, View arg1, ViewGroup arg2) {
+        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         SongData song = lsSongs.get(arg0);
-        SongListItemCreator sv;
-        SongItemView si;
-        View v = null;
+        
+        SongItemLayout v = null;
         
         if (!mpViews.containsKey(arg0)) {
-            sv = new SongListItemCreator(context, song);
-            v = sv.getView();
+            v = SongItemLayout.construct(inflater);
+            v.setSong(song);
             mpViews.put(arg0, v);
         } else {
-            si = (SongItemView) mpViews.get(arg0);
-            //si.setSong(song);
-            v = si.getView();
-        }
-        
+            v = (SongItemLayout) mpViews.get(arg0);
+        }        
         return v;
     }
 }

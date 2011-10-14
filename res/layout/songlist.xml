@@ -4,10 +4,14 @@
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
     >
-        <ListView
+    <Button
+            android:id="@+id/btnShowSelectedSongs"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:choiceMode="multipleChoice"
+            />
+    <ListView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/lvSongs"/>
 </LinearLayout>
 

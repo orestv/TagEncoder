@@ -10,28 +10,35 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore.Audio.Media;
+import android.util.SparseBooleanArray;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
 /**
  *
  * @author seth
  */
-public class SongListActivity extends Activity implements OnItemClickListener {
+public class SongListActivity extends Activity implements OnItemClickListener, OnClickListener {
 
+    private ListView lvSongs = null;
     /** Called when the activity is first created. */
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
         setContentView(R.layout.songlist);
 
-        ListView lv = (ListView) findViewById(R.id.lvSongs);
-
-        lv.setAdapter(new SongListAdapter(SongListActivity.this));
-
-        lv.setOnItemClickListener(this);
+        lvSongs = (ListView) findViewById(R.id.lvSongs);
+        lvSongs.setAdapter(new SongListAdapter(SongListActivity.this));
+        lvSongs.setOnItemClickListener(this);
+        lvSongs.setItemsCanFocus(false);
+        lvSongs.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        
+        ((Button)findViewById(R.id.btnShowSelectedSongs)).setOnClickListener(this);
     }
 
     public void onItemClick(AdapterView<?> adapter, View view, int position, long id) {
@@ -44,5 +51,11 @@ public class SongListActivity extends Activity implements OnItemClickListener {
         i.setData(uri);
         i.setClass(this, SongRecodeActivity.class);
         startActivity(i);
+    }
+
+    public void onClick(View arg0) {
+        long[] arrIDs = lvSongs.getCheckItemIds();
+        SparseBooleanArray checkedItemPositions = lvSongs.getCheckedItemPositions();
+        String s = checkedItemPositions.toString();
     }
 }

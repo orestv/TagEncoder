@@ -17,6 +17,8 @@ import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Checkable;
 import android.widget.CheckedTextView;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -45,7 +47,7 @@ public final class SongListItemCreator {
     private static SongItemView createView(final Context context, final SongData song, SongListItemCreator creator) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         final SongItemView view = (SongItemView) inflater.inflate(R.layout.songitem, null, false);
-        view.setListView(creator);
+        view.setCreator(creator);
 
         view.tvTitle = (TextView) view.findViewById(R.id.tvTitle);
         view.tvVersion = (TextView) view.findViewById(R.id.tvVersion);
@@ -87,6 +89,7 @@ public final class SongListItemCreator {
                             case Unknown:
                                 sRet = "Unknown";
                                 view.setEnabled(false);
+                                view.chkSelected.setEnabled(false);
                                 break;
                         }
                         synchronized (context) {
@@ -120,13 +123,14 @@ public final class SongListItemCreator {
         return view;
     }
 
-    public static class SongItemView extends RelativeLayout implements Checkable {
+    public static class SongItemView extends RelativeLayout implements Checkable{
 
         private SongListItemCreator slv = null;
         private TextView tvTitle = null;
         private TextView tvVersion = null;
         private ProgressBar pbVersion = null;
         private CheckBox chkSelected = null;
+        private boolean bChecked = false;
 
         public SongItemView(Context context, SongListItemCreator slv) {
             super(context);
@@ -137,7 +141,7 @@ public final class SongListItemCreator {
             super(context, set);
         }
 
-        public void setListView(SongListItemCreator slv) {
+        public void setCreator(SongListItemCreator slv) {
             this.slv = slv;
         }
 
@@ -154,14 +158,16 @@ public final class SongListItemCreator {
         }
 
         public void setChecked(boolean arg0) {
+            bChecked = arg0;
             chkSelected.setChecked(arg0);
         }
 
         public boolean isChecked() {
-            return chkSelected.isChecked();
+            return bChecked;
         }
 
         public void toggle() {
+            bChecked = !bChecked;
             chkSelected.toggle();
         }
     }
