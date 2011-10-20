@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<tagencoder.main.SongItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+        
+        
+    <CheckBox android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/chkSongitem_Selected"/>
+    <TextView android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/chkSongitem_Selected"
+        android:id="@+id/tvSongitem_Title"/>
+    <TextView android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/tvSongitem_Title"
+        android:layout_toRightOf="@id/chkSongitem_Selected"
+        android:id="@+id/tvSongitem_Album"/>
+        
+    <ProgressBar android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:id="@+id/tvSongitem_Progress"/>
+    
+</tagencoder.main.SongItemLayout>
+

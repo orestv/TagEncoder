@@ -6,7 +6,6 @@ package tagencoder.main;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.net.Uri;
 import android.provider.MediaStore.Audio.Media;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +13,6 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import java.util.ArrayList;
 import java.util.HashMap;
-import tagencoder.main.SongListItemCreator.SongItemView;
 
 /**
  *
@@ -57,14 +55,14 @@ public class SongListAdapter extends BaseAdapter {
         return lsSongs.get(arg0).getId();
     }
 
-    public View getView(int arg0, View arg1, ViewGroup arg2) {
+    public View getView(int arg0, View arg1, ViewGroup group) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         SongData song = lsSongs.get(arg0);
         
         SongItemLayout v = null;
         
         if (!mpViews.containsKey(arg0)) {
-            v = SongItemLayout.construct(inflater);
+            v = SongItemLayout.create(inflater, group);
             v.setSong(song);
             mpViews.put(arg0, v);
         } else {

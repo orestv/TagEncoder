@@ -46,13 +46,15 @@ public final class SongListItemCreator {
 
     private static SongItemView createView(final Context context, final SongData song, SongListItemCreator creator) {
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        final SongItemView view = (SongItemView) inflater.inflate(R.layout.songitem, null, false);
+        final SongItemView view = null;//(SongItemView) inflater.inflate(R.layout.songitem, null, false);
         view.setCreator(creator);
-
+/*
         view.tvTitle = (TextView) view.findViewById(R.id.tvTitle);
         view.tvVersion = (TextView) view.findViewById(R.id.tvVersion);
         view.pbVersion = (ProgressBar) view.findViewById(R.id.pbVersion);
         view.chkSelected = (CheckBox) view.findViewById(R.id.chkSongItem);
+ * 
+ */
 
         final Handler handler = new Handler();
 

@@ -34,9 +34,8 @@ public class SongListActivity extends Activity implements OnItemClickListener, O
 
         lvSongs = (ListView) findViewById(R.id.lvSongs);
         lvSongs.setAdapter(new SongListAdapter(SongListActivity.this));
-        lvSongs.setOnItemClickListener(this);
-        lvSongs.setItemsCanFocus(false);
-        lvSongs.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
+        //lvSongs.setOnItemClickListener(this);
+        //lvSongs.setChoiceMode(ListView.CHOICE_MODE_MULTIPLE);
         
         ((Button)findViewById(R.id.btnShowSelectedSongs)).setOnClickListener(this);
     }
