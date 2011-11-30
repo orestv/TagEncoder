@@ -4,7 +4,7 @@
       android:versionCode="1"
       android:versionName="1.0">
     <application android:label="@string/app_name" android:icon="@drawable/icon">
-        <activity android:name="MainMenuActivity"
+        <activity android:name="MainActivity"
                   android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -16,12 +16,6 @@
         </activity>
         <activity android:name="SongRecodeActivity"
                   android:label="Recode song">
-            <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.OPENABLE"/>
-                <data mimeType="audio/*"/>                
-            </intent-filter>
         </activity>
     </application>
 </manifest> 
