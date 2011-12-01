@@ -14,30 +14,52 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
  * @author seth
  */
-public class ArtistListAdapter extends BaseAdapter {
+public class ArtistListAdapter extends BaseAdapter implements CharsetUpdateableAdapter{
 
     private Context context = null;
-    private ArrayList<Pair<Long, String>> lsArtists = new ArrayList<Pair<Long, String>>();
+    private ArrayList<Pair<Long, String>> lsArtists = null;
 
-    public ArtistListAdapter(Context context) {
+    public ArtistListAdapter(Context context){
         this.context = context;
-
+        update();
+    }
+    
+    public final void update()
+    {   
+        try {
+            setCharset(null);
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(ArtistListAdapter.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
+    
+    public final void setCharset(String charset) throws UnsupportedEncodingException {
         String[] projection = new String[]{Artists._ID, Artists.ARTIST, Artists.NUMBER_OF_ALBUMS};
 
         Cursor c = context.getContentResolver().query(Artists.EXTERNAL_CONTENT_URI, projection, null, null, null);
+        lsArtists = new ArrayList<Pair<Long, String>>(c.getCount());
         while (c.moveToNext()) {
             Long nId = c.getLong(c.getColumnIndex(Artists._ID));
             String sArtistName = c.getString(c.getColumnIndex(Artists.ARTIST));
             
+            if (charset != null) {
+                byte[] bytes = sArtistName.getBytes("ISO8859-1");
+                sArtistName = new String(bytes, charset);
+            }
+            
             lsArtists.add(new Pair<Long, String>(nId, sArtistName));
         }
         c.close();
+        this.notifyDataSetChanged();
     }
 
     public int getCount() {
